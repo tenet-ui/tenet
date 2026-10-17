@@ -203,9 +203,9 @@ Summary line on stderr at startup: `tenet <Version> serving <root> on stdio; des
 | Rule id duplicate | Problem at second heading line: `duplicate rule id "<id>" (first at line N)`. The second entry is skipped. |
 | Rule with no statement | Problem at heading line: `rule "<id>" has no statement`. |
 | Rule with no `Reason:` line | Problem at heading line: `rule "<id>" has no Reason: line`. The rule is kept with an empty reason and fails validation. |
-| `Reason:` with empty text | Problem at that line: `Reason: is empty`. |
+| `Reason:` with empty text | Problem at that line: `rule "<id>" has an empty Reason: line`. |
 | Second `Reason:` line in one entry | Problem at that line: `rule "<id>" has more than one Reason: line`. |
-| `## ` inside a fenced code block | Not a heading; part of the preceding text or entry body. |
+| `## ` inside a fenced code block | Not a heading. Fence delimiter lines and the fenced lines between them are not part of the rule statement, and a `Reason:` line inside a fence is not counted (ruling in the Task 3 ledger entry). |
 | Unclosed fence | Everything after the fence is inside it, so later rule headings are not seen. Not reported in this slice (D17). |
 | `components/` missing | Zero components, no problem. |
 | `components` is a file | Problem `components: not a directory`. |

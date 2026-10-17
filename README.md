@@ -2,7 +2,7 @@
 
 An MCP server that lets Claude users encode their own design system (point of view, tokens, components, templates, flows, rules) and delivers it to the AI at the right moment, so AI-built interfaces carry intent instead of generic "zombie UI". The Stripe design system, reverse-engineered from public sources, is the reference example.
 
-The tool is at the walking-skeleton stage and has one tool, `get_point_of_view`.
+The tool has three commands: serving MCP over stdio (the default), `validate`, and `init`. It has one MCP tool, `get_point_of_view`. The design-system tools arrive in a later slice.
 
 ## Requirements
 
@@ -17,6 +17,72 @@ go build -o tenet ./cmd/tenet
 
 Without `--dir`, the working directory is the project root.
 
+## Start a design system
+
+```bash
+go run ./cmd/tenet init --dir /path/to/your/project
+```
+
+This writes an empty, valid `design-system/` folder. It refuses to run if `design-system` already exists, and it writes nothing in that case.
+
+## Check a design system
+
+```bash
+go run ./cmd/tenet validate --dir testdata/project
+```
+
+Each problem prints as `path:line: message`, so most terminals and editors make it a link. The command exits 0 when the system is valid, 1 when it has problems, and 2 for a usage or `--dir` error.
+
+## The design-system folder
+
+```
+design-system/
+├── point-of-view.md     required: the brand point of view, free Markdown, not empty
+├── tokens.json          required: design values, see below
+├── rules.md             required: checkable rules, see below
+├── components/          optional: one Markdown file per component
+├── templates/           optional: one Markdown file per template
+└── flows/               optional: one Markdown file per flow
+```
+
+**`tokens.json`** is an object of categories. Each category is an object of token names. A value is a string or a number:
+
+```json
+{
+  "color": {
+    "ink": "#1d2433",
+    "accent": "#2f6fed"
+  },
+  "space": {
+    "unit": 4
+  }
+}
+```
+
+Category and token names are lowercase letters, digits and dashes, starting with a letter (`ink`, `touch-target`). A token's full name is `category.name`, for example `color.ink`.
+
+**`rules.md`** holds one rule per `##` heading. The heading is the rule's id, lowercase letters and digits joined by dots or dashes. Each rule has a statement and exactly one `Reason:` line:
+
+```markdown
+## color.tokens-only
+Components take colours from tokens, never from raw hex values.
+Reason: A raw value drifts from the palette the moment one screen is edited alone.
+```
+
+A rules file with no rules is valid.
+
+**`components/`, `templates/`, `flows/`** each hold Markdown files. The file name, without `.md`, is the item's id and must be lowercase kebab-case (`primary-button.md`). The first line must be a level-1 heading with the item's title:
+
+```markdown
+# Button
+
+The primary action on a surface. Use one per view.
+```
+
+Files in those folders that do not end in `.md` are ignored.
+
+See [testdata/project/design-system](testdata/project/design-system) for a complete example that passes `validate`.
+
 ## Check the stdio protocol
 
 ```bash
@@ -27,7 +93,7 @@ Without `--dir`, the working directory is the project root.
   sleep 3 ) | go run ./cmd/tenet --dir testdata/project
 ```
 
-Stdin must stay open until the responses arrive, which is why the command sleeps; stdout carries only JSON-RPC responses, and the startup line goes to stderr.
+Stdin must stay open until the responses arrive, which is why the command sleeps. Stdout carries only JSON-RPC responses. The startup line, which includes the design-system summary and any problems, goes to stderr.
 
 ## Connect Claude Code
 
@@ -35,9 +101,7 @@ Stdin must stay open until the responses arrive, which is why the command sleeps
 claude mcp add --transport stdio tenet -- /absolute/path/to/tenet --dir /absolute/path/to/your/project
 ```
 
-Then run `claude mcp list` and confirm `tenet` is connected.
-
-The project needs `design-system/point-of-view.md`; write it first, before using the tool. see [testdata/project/design-system/point-of-view.md](testdata/project/design-system/point-of-view.md) for an example.
+Then run `claude mcp list` and confirm `tenet` is connected. Run `tenet validate --dir /absolute/path/to/your/project` first, so the point of view and the other files are known to be valid.
 
 ## Develop
 
