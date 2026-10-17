@@ -1,8 +1,8 @@
 # Roadmap
 
 - [ ] Slice 1: Walking skeleton
-  - `npm start` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
-  - Repo has `.gitignore` for Node, TypeScript build, one passing test, lint and format scripts, CI running them on push, and a README with run instructions for Claude Code
+  - `go run ./cmd/design-mcp` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
+  - Repo has a Go `.gitignore`, one passing `go test`, `gofmt` and `golangci-lint` checks, CI running them on push, and a README with run instructions for Claude Code
 - [ ] Slice 2: Design system pack format and validation
   - A `design-system/` folder with tokens (JSON), rules (Markdown, one rule per entry with a reason), components, templates and flows is read by the server
   - A `design-mcp validate` command reports missing or malformed files with file and line, and exits non-zero on error
@@ -23,7 +23,7 @@
 
 ## Later
 - Hosted or shared mode with accounts and auth (needs its own ADR; see ADR-0005)
-- Remote HTTP transport (see ADR-0001)
+- Remote HTTP transport (see ADR-0007)
 - Importing tokens from Figma or design-token JSON exports
 - Publishing and discovering community packs
 - Multi-context packs with a `GLOSSARY-MAP.md`-style index for large systems
