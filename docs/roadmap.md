@@ -3,7 +3,7 @@
 - [x] Slice 1: Walking skeleton
   - `go run ./cmd/tenet` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
   - Repo has a Go `.gitignore`, one passing `go test`, `gofmt` and `golangci-lint` checks, CI running them on push, and a README with run instructions for Claude Code
-- [ ] Slice 2: Design system pack format and validation
+- [x] Slice 2: Design system pack format and validation
   - A `design-system/` folder with tokens (JSON), rules (Markdown, one rule per entry with a reason), components, templates and flows is read by the server
   - A `tenet validate` command reports missing or malformed files with file and line, and exits non-zero on error
   - A `tenet init` command scaffolds an empty, valid `design-system/` folder

@@ -28,7 +28,7 @@ func runValidate(args []string, cwd string, stdout, stderr io.Writer) int {
 }
 
 // packSummary counts each kind of item in a pack, for output lines.
-func packSummary(p designsystem.Pack) string {
+func packSummary(p designsystem.DesignSystem) string {
 	return fmt.Sprintf("%d tokens, %d rules, %d components, %d templates, %d flows",
 		len(p.Tokens), len(p.Rules), len(p.Components), len(p.Templates), len(p.Flows))
 }

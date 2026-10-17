@@ -83,4 +83,4 @@ tenet: an MCP server that gives Claude users a design system (point of view, tok
 - Format check: `test -z "$(gofmt -l .)"`
 - Lint: `go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run`
 
-**Layout:** `cmd/tenet` (entry point and `--dir` handling), `internal/server` (MCP server and tools), `internal/designsystem` (reads design-system files; no MCP types). Stdout carries only MCP protocol; logs go to stderr.
+**Layout:** `cmd/tenet` (entry point and `--dir` handling), `internal/server` (MCP server and tools), `internal/designsystem` (reads design-system files; no MCP types). While serving, stdout carries only MCP protocol and logs go to stderr; `validate` and `init` may print to stdout.

@@ -43,8 +43,8 @@ type Item struct {
 	Path  string // slash-separated, relative to the project root
 }
 
-// Pack is everything the loader read from design-system/.
-type Pack struct {
+// DesignSystem is everything the loader read from design-system/.
+type DesignSystem struct {
 	PointOfView string // empty when the file has problems
 	Tokens      []Token
 	Rules       []Rule
@@ -56,8 +56,8 @@ type Pack struct {
 // Load reads root/design-system and returns the pack it could read and every
 // problem it found. A non-empty problems slice means the pack is not valid,
 // but Load still returns whatever it could parse.
-func Load(root string) (Pack, []Problem) {
-	var pack Pack
+func Load(root string) (DesignSystem, []Problem) {
+	var pack DesignSystem
 	info, err := os.Stat(filepath.Join(root, DirName))
 	switch {
 	case errors.Is(err, fs.ErrNotExist):

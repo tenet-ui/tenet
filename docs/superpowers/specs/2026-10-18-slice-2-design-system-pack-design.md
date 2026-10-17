@@ -35,9 +35,9 @@ Define the on-disk format of a `design-system/` folder (point of view, tokens, r
 | D15 | Item id is the file name without `.md`. It must match `^[a-z0-9]+(-[a-z0-9]+)*$`; otherwise the file is reported and left out of the pack. | Ids are URL- and tool-argument-friendly for slice 3 (`get_component` takes an id). |
 | D16 | Item validity: the first non-blank line is a level-1 heading `# <title>` with non-empty title. An empty file is an error at line 1. | Gives every item a title for the summary and for slice 3's "available items" error list, with no other schema. |
 | D17 | Markdown checks stay minimal: no cross-reference checks, no link checks, no front matter, no required sections. | No references exist in slice 2. Each additional check is a format decision that a later slice should make with real usage. |
-| D18 | One loader: `designsystem.Load(root) (Pack, []Problem)` is the only code that reads the pack. `tenet validate` prints its problems. The serve path calls `Load` at startup and logs the summary and problems to stderr, then serves as before. | One definition of "valid" for both commands and the server, so they cannot disagree. |
+| D18 | One loader: `designsystem.Load(root) (DesignSystem, []Problem)` is the only code that reads the pack. `tenet validate` prints its problems. The serve path calls `Load` at startup and logs the summary and problems to stderr, then serves as before. | One definition of "valid" for both commands and the server, so they cannot disagree. |
 | D19 | A bad pack does not stop the server. `get_point_of_view` behaves exactly as in slice 1, reading the point-of-view file on each call. | Slice 1 D10 and D12. A broken token file should not take down the one tool that works. |
-| D20 | `server.New(root)` keeps its signature in this slice. The loaded `Pack` is not passed to the server yet. | No tool uses the pack until slice 3. Slice 3 changes `server.New` to take the `Pack` when it needs it. This is the one place the server package does not "read" the pack directly; the serve path reads it on the server's behalf. |
+| D20 | `server.New(root)` keeps its signature in this slice. The loaded `DesignSystem` is not passed to the server yet. | No tool uses the pack until slice 3. Slice 3 changes `server.New` to take the `DesignSystem` when it needs it. This is the one place the server package does not "read" the pack directly; the serve path reads it on the server's behalf. |
 | D21 | Problems are printed as `path:line: message`, or `path: message` when there is no line. Paths are slash-separated and relative to the project root. | The `file:line:` shape is what editors and terminals turn into clickable links. |
 | D22 | `validate` prints problems to stdout, then either `design system valid: N tokens, M rules, C components, T templates, F flows` (exit 0) or `K problem(s) found` (exit 1). Usage and `--dir` errors exit 2. | Stdout is fine here: `validate` is not an MCP session. Exit codes follow slice 1's `--dir` error (2). |
 | D23 | Line numbers are 1-based. For JSON, a problem is reported on the line where the offending token ends (for a nested object value, the line of its opening `{`). For a JSON syntax error, the line of the byte where the decoder failed. | `json.Decoder` gives byte offsets, not lines. These rules are exact for one-line tokens, which is how the format is written. |
@@ -58,7 +58,7 @@ cmd/tenet/
 internal/designsystem/
 ├── pointofview.go     # ReadPointOfView (unchanged from slice 1)
 ├── pointofview_test.go
-├── load.go            # Load: orchestrates the file checks, returns Pack and Problems
+├── load.go            # Load: orchestrates the file checks, returns DesignSystem and Problems
 ├── tokens.go          # parseTokens: JSON token walk with line numbers
 ├── rules.go           # parseRules: Markdown rule entries
 ├── items.go           # loadItems: component/template/flow folders
@@ -117,8 +117,8 @@ type Item struct {
     Path  string // slash-separated, relative to the project root
 }
 
-// Pack is everything the loader read from design-system/.
-type Pack struct {
+// DesignSystem is everything the loader read from design-system/.
+type DesignSystem struct {
     PointOfView string // empty when the file has problems
     Tokens      []Token
     Rules       []Rule
@@ -130,7 +130,7 @@ type Pack struct {
 // Load reads root/design-system and returns the pack it could read and every
 // problem it found. A non-empty problems slice means the pack is not valid,
 // but Load still returns whatever it could parse.
-func Load(root string) (Pack, []Problem)
+func Load(root string) (DesignSystem, []Problem)
 
 var ErrAlreadyExists = errors.New("design-system already exists")
 
@@ -205,7 +205,7 @@ Summary line on stderr at startup: `tenet <Version> serving <root> on stdio; des
 | Rule with no `Reason:` line | Problem at heading line: `rule "<id>" has no Reason: line`. The rule is kept with an empty reason and fails validation. |
 | `Reason:` with empty text | Problem at that line: `rule "<id>" has an empty Reason: line`. |
 | Second `Reason:` line in one entry | Problem at that line: `rule "<id>" has more than one Reason: line`. |
-| `## ` inside a fenced code block | Not a heading. Fence delimiter lines and the fenced lines between them are not part of the rule statement, and a `Reason:` line inside a fence is not counted (ruling in the Task 3 ledger entry). |
+| `## ` inside a fenced code block | Not a heading. Fence delimiter lines and the fenced lines between them are not part of the rule statement, and a `Reason:` line inside a fence is not counted (decision D12). |
 | Unclosed fence | Everything after the fence is inside it, so later rule headings are not seen. Not reported in this slice (D17). |
 | `components/` missing | Zero components, no problem. |
 | `components` is a file | Problem `components: not a directory`. |

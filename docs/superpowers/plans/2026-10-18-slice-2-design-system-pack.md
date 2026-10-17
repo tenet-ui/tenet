@@ -2,6 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+
+> **Superseded in places.** The implemented code (commit ea7ee82) is authoritative. Where this plan's code blocks differ from it: the type `Pack` is named `DesignSystem`; `badByteIndex(off)` returns `max(off-1, 0)` with no data argument; `parseRules` excludes fence lines and fenced content from the rule statement; the BOM tests use the `\uFEFF` escape. The spec (also updated to `DesignSystem`) is the binding authority.
+
 **Goal:** The server and a new `tenet validate` command read a `design-system/` folder (point of view, tokens JSON, rules Markdown, and component, template and flow Markdown items) through one loader that reports every problem with its file and line; `tenet init` scaffolds a valid empty folder.
 
 **Architecture:** `internal/designsystem` gains a stdlib-only loader made of small per-file parsers (`tokens.go`, `rules.go`, `items.go`), one `Load(root)` that orchestrates them, and a `Scaffold(root)`. `cmd/tenet` dispatches subcommands (`validate`, `init`, and the unchanged default serve path) and prints problems as `path:line: message`. `internal/server` is unchanged.

@@ -102,6 +102,16 @@ func TestParseTokens(t *testing.T) {
 			wantProblems: []wantProblem{{1, `token name "Ink" must be lowercase`}},
 		},
 		{
+			name:         "token name with underscore",
+			data:         `{"color":{"a_b":"#fff"}}`,
+			wantProblems: []wantProblem{{1, `token name "a_b" must be lowercase`}},
+		},
+		{
+			name:         "token name starting with a dash",
+			data:         `{"color":{"-a":"#fff"}}`,
+			wantProblems: []wantProblem{{1, `token name "-a" must be lowercase`}},
+		},
+		{
 			name:         "invalid category name",
 			data:         `{"Color":{"ink":"#fff"}}`,
 			wantProblems: []wantProblem{{1, `category name "Color" must be lowercase`}},
