@@ -38,12 +38,12 @@ Ship `packs/stripe-reference/`, a worked design-system pack built from the publi
   - `color`: `ink`, `ink-soft`, `ink-quiet`, `paper`, `paper-subdued`, `border`, `brand`, `brand-hover`, `brand-soft`, `focus`, `danger`
   - `space`: `unit` 8, `xs` 4, `sm` 8, `md` 16, `lg` 24, `xl` 32
   - `radius`: `xs` 2, `sm` 4, `md` 6, `lg` 16, `round` 9999
-  - `motion`: `ease-out` `cubic-bezier(0.25, 1, 0.5, 1)`, `duration-fast` `120ms`, `duration-base` `300ms`
+  - `motion`: `standard` `cubic-bezier(0.25, 1, 0.5, 1)`, `duration-fast` `120ms`, `duration-base` `300ms` (named `standard`, not `ease-out`: a token name containing `ease-out` would match the pack's own motion pattern inside a transition)
   - `type`: `family` `"Inter", system-ui, sans-serif`, `weight-light` 300, `weight-bold` 500
 - **Rules** (`rules.md`): as R5 and R6, each with a `Reason:` that cites the research section, and an `Applies to:` line naming components, the template, and token categories.
 - **Components**: `button` (primary action; one per view), `text-field` (labelled input), `empty-state` (a title and one action).
 - **Template**: `payments-list`, a filterable, exportable list of payments with a status column and a row-detail link, from research §7.
-- **Flow**: `account-setup`, the six steps from research §7 (account, sandbox, checklist, business verification, public details, two-factor security), with the states and transitions for each.
+- **Flow**: `account-setup`, the six steps from research §7, each with its states and transitions.
 
 ## Architecture
 

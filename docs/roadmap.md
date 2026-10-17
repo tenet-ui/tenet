@@ -13,7 +13,7 @@
 - [x] Slice 4: Critique tool
   - Tool `critique` takes a file path to a UI source file and the relevant system, and returns a list of findings, each naming the rule it breaks and a specific fix
   - Findings reference rule IDs from the rules file; a test fixture with two seeded violations reports both and no others
-- [ ] Slice 5: Reference pack: unofficial Stripe-inspired system
+- [x] Slice 5: Reference pack: unofficial Stripe-inspired system
   - A `packs/stripe-reference/` folder built from `docs/research/stripe-design-system.md`, with tokens, rules, components, one template and one flow, all citing their research source
   - The pack ships no Stripe logos or wordmarks, and its README states it is an unofficial reverse engineering
   - Running `critique` against a fixture page that uses only pack tokens reports no findings
@@ -28,3 +28,4 @@
 - Publishing and discovering community packs
 - Multi-context packs with a `GLOSSARY-MAP.md`-style index for large systems
 - Cap the number of findings `critique` returns, with a "showing N of M" header (a 1 MiB file of matches can produce about 31 MB of text; the format needs a decision)
+- Reconcile ADR-0002's "critique checklist" with the loader: the ADR lists one, but no slice reads or requires it (found in slice 5 review)

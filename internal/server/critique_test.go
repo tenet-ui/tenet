@@ -191,3 +191,17 @@ func TestCritiqueEmptyArgumentsAreErrors(t *testing.T) {
 		})
 	}
 }
+
+// TestCritiquePackFixtureNoFindings runs the reference pack against its fixture from the repository root.
+// The pack lives outside testdata, so the server root is the repository root.
+func TestCritiquePackFixtureNoFindings(t *testing.T) {
+	session := connect(t, "../..")
+	res := callTool(t, session, "critique", map[string]any{
+		"file":   "testdata/critique/pack-clean.html",
+		"system": "packs/stripe-reference",
+	})
+	want := "No findings in testdata/critique/pack-clean.html against packs/stripe-reference. Checked 4 rule(s).\n"
+	if res.IsError || textOf(t, res) != want {
+		t.Errorf("got IsError=%t %q, want %q", res.IsError, textOf(t, res), want)
+	}
+}

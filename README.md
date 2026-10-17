@@ -168,3 +168,7 @@ go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run
 - [GLOSSARY.md](GLOSSARY.md)
 - [docs/roadmap.md](docs/roadmap.md)
 - [docs/adr/](docs/adr/)
+
+## Reference pack
+
+A worked, unofficial Stripe-inspired design system lives in `packs/stripe-reference/`. See its [README](packs/stripe-reference/README.md).
