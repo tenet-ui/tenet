@@ -99,6 +99,12 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 			reasons    int
 			appliesTo  int
 			refs       []Ref
+			pattern    string
+			forbidLine int
+			forbids    int
+			fix        string
+			fixLine    int
+			fixes      int
 		)
 		for _, l := range e.body {
 			t := strings.TrimSpace(l.text)
@@ -133,6 +139,26 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 				}
 				continue
 			}
+			if strings.HasPrefix(t, "Forbid:") {
+				forbids++
+				if forbids > 1 {
+					add(l.no, "rule %q has more than one Forbid: line", e.id)
+					continue
+				}
+				pattern = strings.TrimSpace(strings.TrimPrefix(t, "Forbid:"))
+				forbidLine = l.no
+				continue
+			}
+			if strings.HasPrefix(t, "Fix:") {
+				fixes++
+				if fixes > 1 {
+					add(l.no, "rule %q has more than one Fix: line", e.id)
+					continue
+				}
+				fix = strings.TrimSpace(strings.TrimPrefix(t, "Fix:"))
+				fixLine = l.no
+				continue
+			}
 			if t != "" {
 				statement = append(statement, t)
 			}
@@ -145,13 +171,40 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 		} else if reason == "" {
 			add(reasonLine, "rule %q has an empty Reason: line", e.id)
 		}
+		var forbid *regexp.Regexp
+		if forbids > 0 && pattern == "" {
+			add(forbidLine, "rule %q has an empty Forbid: line", e.id)
+		}
+		if fixes > 0 && fix == "" {
+			add(fixLine, "rule %q has an empty Fix: line", e.id)
+		}
+		if forbids > 0 && fixes == 0 {
+			add(forbidLine, "rule %q has a Forbid: line without a Fix: line", e.id)
+		}
+		if fixes > 0 && forbids == 0 {
+			add(fixLine, "rule %q has a Fix: line without a Forbid: line", e.id)
+		}
+		if forbids > 0 && pattern != "" {
+			re, err := regexp.Compile(pattern)
+			if err != nil {
+				add(forbidLine, "rule %q has an invalid Forbid: pattern: %v", e.id, err)
+			} else {
+				forbid = re
+			}
+		}
+		valid := len(problems) == before
+		if !valid {
+			forbid, fix = nil, ""
+		}
 		rules = append(rules, Rule{
 			ID:        e.id,
 			Statement: strings.Join(statement, " "),
 			Reason:    reason,
 			Line:      e.line,
 			AppliesTo: refs,
-			Valid:     len(problems) == before,
+			Forbid:    forbid,
+			Fix:       fix,
+			Valid:     valid,
 		})
 	}
 	return rules, problems

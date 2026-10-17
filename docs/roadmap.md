@@ -10,7 +10,7 @@
 - [x] Slice 3: On-demand delivery tools
   - Tools `get_tokens`, `get_component`, `get_template`, `get_flow` return only the requested item and its linked rules, so a single call stays small (under 4 KB for the bundled example)
   - Each tool returns an error that names the missing item and lists the available ones
-- [ ] Slice 4: Critique tool
+- [x] Slice 4: Critique tool
   - Tool `critique` takes a file path to a UI source file and the relevant system, and returns a list of findings, each naming the rule it breaks and a specific fix
   - Findings reference rule IDs from the rules file; a test fixture with two seeded violations reports both and no others
 - [ ] Slice 5: Reference pack: unofficial Stripe-inspired system
@@ -27,3 +27,4 @@
 - Importing tokens from Figma or design-token JSON exports
 - Publishing and discovering community packs
 - Multi-context packs with a `GLOSSARY-MAP.md`-style index for large systems
+- Cap the number of findings `critique` returns, with a "showing N of M" header (a 1 MiB file of matches can produce about 31 MB of text; the format needs a decision)

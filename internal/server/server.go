@@ -25,6 +25,12 @@ func New(root string) *mcp.Server {
 		return getPointOfView(root), nil, nil
 	})
 	mcp.AddTool(s, &mcp.Tool{
+		Name:        "critique",
+		Description: "Checks one UI source file against the design system's rules that have a Forbid: pattern. Returns one finding per match, naming the rule, the line, the matched text and the fix. Pass file (a path to the source file) and system (the folder holding design-system/; . for the project root).",
+	}, func(_ context.Context, _ *mcp.CallToolRequest, in CritiqueInput) (*mcp.CallToolResult, any, error) {
+		return critiqueTool(root, in), nil, nil
+	})
+	mcp.AddTool(s, &mcp.Tool{
 		Name:        "get_tokens",
 		Description: "Returns the design tokens of one category (for example color) and the valid rules linked to it. Pass the category name, which is the first part of a token's name.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, in GetTokensInput) (*mcp.CallToolResult, any, error) {

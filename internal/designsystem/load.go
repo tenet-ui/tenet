@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 const (
@@ -51,9 +52,11 @@ type Rule struct {
 	ID        string
 	Statement string // body lines other than the Reason: line, Applies to: line and fenced code, joined with a space
 	Reason    string
-	Line      int   // line of the "## <id>" heading
-	AppliesTo []Ref // refs in the order written
-	Valid     bool  // false when parseRules reported any problem for this entry
+	Line      int            // line of the "## <id>" heading
+	AppliesTo []Ref          // refs in the order written
+	Valid     bool           // false when parseRules reported any problem for this entry
+	Forbid    *regexp.Regexp // nil when the rule has no Forbid: line
+	Fix       string         // text of the Fix: line; empty when none
 }
 
 // Item is one Markdown file in components/, templates/ or flows/.

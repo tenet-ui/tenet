@@ -72,8 +72,8 @@ Dependency direction is unchanged: `cmd` → `server` → `designsystem`. `desig
 // Rule gains two fields.
 type Rule struct {
     // ... existing fields ...
-    Forbid *regexp.Regexp // nil when the rule has no Forbid: line
-    Fix    string         // text of the Fix: line; empty when none
+    Forbid *regexp.Regexp // nil when the rule has no Forbid: line or is invalid
+    Fix    string         // text of the Fix: line; empty when none or when the rule is invalid
 }
 
 // Finding is one breach of one rule in one source file.
@@ -119,6 +119,9 @@ The handler returns `*mcp.CallToolResult`; all failures are `IsError` results (s
 | `file` is a directory | `file "<file>" is a directory; pass a file.` |
 | `file` over 1 MiB | `file "<file>" is larger than 1 MiB; pass a smaller source file.` |
 | `file` contains NUL | `file "<file>" is not a text file.` |
+| `file` is not a regular file (FIFO, device) | `file "<file>" is not a regular file; pass a file.` |
+| `file` is empty | `file is empty; pass the path to a UI source file.` |
+| `system` is empty | `system is empty; pass a folder, or . for the project root.` |
 | `system` has no `design-system/` | `design-system not found under <system>; run tenet init there.` (via C10) |
 | `system`'s design-system is invalid at `design-system` | the problem text plus `; run tenet init` (C10) |
 
@@ -138,3 +141,4 @@ A pattern that does not compile is not an error of `critique`: the rule is inval
 - A pattern checks text, not structure (C14).
 - The spacing pattern flags raw pixel values in spacing properties even when they are multiples of the unit (C17).
 - The tool reports only what a `Forbid:` pattern can express. Judgement against the point of view and the user journey stays with the client, which reads the rules through the delivery tools (ADR-0009).
+- A statement line that begins with Fix: or Forbid: is read as a pattern or fix line, not as statement text, as Reason: and Applies to: already are. An existing rule whose statement starts with one of these words must be reworded (C3 keeps the file format valid for every other line).

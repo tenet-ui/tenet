@@ -44,6 +44,10 @@ _Avoid_: retrieval, RAG, injection
 An editor pass over generated output that checks it against the rules, the point of view and the user journey, and returns specific fixes. A critique is not a yes/no gate.
 _Avoid_: review, lint, validation
 
+**Finding**:
+One breach of one rule in one file, with the line, the rule's id, the matched text and the rule's fix. Critique returns findings; it does not pass or fail a file.
+_Avoid_: error, violation, issue, warning
+
 **Done vs good**:
 The distinction that a generated interface can look finished while still failing the problem, the differentiation or the journey. Critique exists to close that gap.
 _Avoid_: polish, finished

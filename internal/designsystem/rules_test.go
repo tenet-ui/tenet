@@ -394,3 +394,95 @@ func TestParseRulesAppliesTo(t *testing.T) {
 		})
 	}
 }
+
+func TestParseRulesCheck(t *testing.T) {
+	tests := []struct {
+		name         string
+		data         string
+		wantValid    bool
+		wantForbid   string // "" when Forbid is nil
+		wantFix      string
+		wantProblems []wantProblem
+	}{
+		{
+			name:         "invalid pattern without Fix reports both",
+			data:         "## a\nS.\nReason: r.\nForbid: (\n",
+			wantProblems: []wantProblem{{4, `rule "a" has a Forbid: line without a Fix: line`}, {4, `rule "a" has an invalid Forbid: pattern`}},
+		},
+		{
+			name:         "empty Fix with invalid pattern reports both",
+			data:         "## a\nS.\nReason: r.\nForbid: (\nFix:\n",
+			wantProblems: []wantProblem{{5, `rule "a" has an empty Fix: line`}, {4, `rule "a" has an invalid Forbid: pattern`}},
+		},
+		{
+			name:      "no Forbid or Fix is valid",
+			data:      "## a\nS.\nReason: r.\n",
+			wantValid: true,
+		},
+		{
+			name:       "Forbid with Fix",
+			data:       "## a\nS.\nReason: r.\nForbid: #[0-9]+\nFix: Use a token.\n",
+			wantValid:  true,
+			wantForbid: `#[0-9]+`,
+			wantFix:    "Use a token.",
+		},
+		{
+			name:         "Forbid without Fix",
+			data:         "## a\nS.\nReason: r.\nForbid: x\n",
+			wantProblems: []wantProblem{{4, `rule "a" has a Forbid: line without a Fix: line`}},
+		},
+		{
+			name:         "Fix without Forbid",
+			data:         "## a\nS.\nReason: r.\nFix: Use a token.\n",
+			wantProblems: []wantProblem{{4, `rule "a" has a Fix: line without a Forbid: line`}},
+		},
+		{
+			name:         "repeated Forbid",
+			data:         "## a\nS.\nReason: r.\nForbid: x\nForbid: y\nFix: f\n",
+			wantProblems: []wantProblem{{5, `rule "a" has more than one Forbid: line`}},
+		},
+		{
+			name:         "repeated Fix",
+			data:         "## a\nS.\nReason: r.\nForbid: x\nFix: f\nFix: g\n",
+			wantProblems: []wantProblem{{6, `rule "a" has more than one Fix: line`}},
+		},
+		{
+			name:         "empty Forbid",
+			data:         "## a\nS.\nReason: r.\nForbid:\nFix: f\n",
+			wantProblems: []wantProblem{{4, `rule "a" has an empty Forbid: line`}},
+		},
+		{
+			name:         "empty Fix",
+			data:         "## a\nS.\nReason: r.\nForbid: x\nFix:\n",
+			wantProblems: []wantProblem{{5, `rule "a" has an empty Fix: line`}},
+		},
+		{
+			name:         "invalid pattern",
+			data:         "## a\nS.\nReason: r.\nForbid: (\nFix: f\n",
+			wantProblems: []wantProblem{{4, `rule "a" has an invalid Forbid: pattern`}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rules, problems := parseRules(RulesPath, []byte(tt.data))
+			checkProblems(t, problems, tt.wantProblems)
+			if len(rules) != 1 {
+				t.Fatalf("got %d rules, want 1", len(rules))
+			}
+			r := rules[0]
+			if r.Valid != tt.wantValid {
+				t.Errorf("Valid = %t, want %t", r.Valid, tt.wantValid)
+			}
+			gotForbid := ""
+			if r.Forbid != nil {
+				gotForbid = r.Forbid.String()
+			}
+			if gotForbid != tt.wantForbid {
+				t.Errorf("Forbid = %q, want %q", gotForbid, tt.wantForbid)
+			}
+			if r.Fix != tt.wantFix {
+				t.Errorf("Fix = %q, want %q", r.Fix, tt.wantFix)
+			}
+		})
+	}
+}

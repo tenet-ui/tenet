@@ -82,6 +82,18 @@ Applies to: tokens:color, component:button
 
 A rule without an `Applies to:` line is valid, but no delivery tool returns it. Every reference must name an item or category that exists; `validate` reports the ones that do not.
 
+A rule can also carry a check. The `Forbid:` line is a Go regular expression (RE2 syntax); each match on a line of a UI source file is a finding. The `Fix:` line says how to fix it. A rule has both lines or neither:
+
+```markdown
+## color.tokens-only
+Components take colours from tokens, never from raw hex values.
+Reason: A raw value drifts from the palette the moment one screen is edited alone.
+Forbid: #[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?)\(
+Fix: Replace the raw colour with a colour token from tokens.json.
+```
+
+A pattern that does not compile, a repeated `Forbid:` or `Fix:`, or an empty one is a problem that `validate` reports. The rule is then not checked.
+
 **`components/`, `templates/`, `flows/`** each hold Markdown files. The file name, without `.md`, is the item's id and must be lowercase kebab-case (`primary-button.md`). The first line must be a level-1 heading with the item's title:
 
 ```markdown
@@ -104,6 +116,23 @@ See [testdata/project/design-system](testdata/project/design-system) for a compl
 | `get_flow` | `id` | the same, for `flows/` |
 
 A rule appears under `## Linked rules` only when it is valid and names the item or category. An unknown id returns an error that lists the ids that exist. An item whose file has a problem returns that problem. Each call reads the design system again, so edits show without restarting the server. Keep each result small: a single item and its rules should stay well under 4 KB.
+
+## Critique tool
+
+`critique` checks one UI source file against the rules of a design system that have a `Forbid:` line. It returns one finding per match:
+
+| Argument | Meaning |
+|---|---|
+| `file` | the source file, relative to the project root or absolute |
+| `system` | the folder holding its `design-system/`, relative to the project root; `.` for the project root |
+
+A finding reads:
+
+```
+testdata/critique/page.html:4: color.tokens-only: found "#ff0000". Replace the raw colour with a colour token from tokens.json.
+```
+
+The result names the file and the system, then one line per finding. When no rule can be checked, the result says so. The check is deterministic and reads the file as text, one line at a time, so a pattern cannot span lines and cannot judge layout or intent. The client that calls `critique` does that judgement, using the rules from the delivery tools. A `Forbid:` pattern is an approximation of its rule: the bundled spacing pattern flags every raw `px` value in `margin`, `padding` or `gap`, including values that are multiples of the unit. The source must be 1 MiB or less and a text file.
 
 ## Check the stdio protocol
 

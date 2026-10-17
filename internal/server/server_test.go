@@ -56,7 +56,7 @@ func textOf(t *testing.T, res *mcp.CallToolResult) string {
 	return tc.Text
 }
 
-func TestListsFiveTools(t *testing.T) {
+func TestListsSixTools(t *testing.T) {
 	session := connect(t, fixtureRoot)
 
 	res, err := session.ListTools(context.Background(), nil)
@@ -78,7 +78,7 @@ func TestListsFiveTools(t *testing.T) {
 			t.Errorf("%s input schema type = %v, want \"object\"", tool.Name, schema["type"])
 		}
 	}
-	want := []string{"get_component", "get_flow", "get_point_of_view", "get_template", "get_tokens"}
+	want := []string{"critique", "get_component", "get_flow", "get_point_of_view", "get_template", "get_tokens"}
 	if !reflect.DeepEqual(sortedCopy(names), want) {
 		t.Fatalf("tools = %v, want %v", names, want)
 	}
