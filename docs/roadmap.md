@@ -1,0 +1,29 @@
+# Roadmap
+
+- [ ] Slice 1: Walking skeleton
+  - `npm start` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
+  - Repo has `.gitignore` for Node, TypeScript build, one passing test, lint and format scripts, CI running them on push, and a README with run instructions for Claude Code
+- [ ] Slice 2: Design system pack format and validation
+  - A `design-system/` folder with tokens (JSON), rules (Markdown, one rule per entry with a reason), components, templates and flows is read by the server
+  - A `design-mcp validate` command reports missing or malformed files with file and line, and exits non-zero on error
+  - A `design-mcp init` command scaffolds an empty, valid `design-system/` folder
+- [ ] Slice 3: On-demand delivery tools
+  - Tools `get_tokens`, `get_component`, `get_template`, `get_flow` return only the requested item and its linked rules, so a single call stays small (under 4 KB for the bundled example)
+  - Each tool returns an error that names the missing item and lists the available ones
+- [ ] Slice 4: Critique tool
+  - Tool `critique` takes a file path to a UI source file and the relevant system, and returns a list of findings, each naming the rule it breaks and a specific fix
+  - Findings reference rule IDs from the rules file; a test fixture with two seeded violations reports both and no others
+- [ ] Slice 5: Reference pack: unofficial Stripe-inspired system
+  - A `packs/stripe-reference/` folder built from `docs/research/stripe-design-system.md`, with tokens, rules, components, one template and one flow, all citing their research source
+  - The pack ships no Stripe logos or wordmarks, and its README states it is an unofficial reverse engineering
+  - Running `critique` against a fixture page that uses only pack tokens reports no findings
+- [ ] Slice 6: Consistency experiment
+  - Five fixed briefs are run twice each: once with a plain prompt, once with the MCP tools enabled and the reference pack loaded
+  - A committed report lists how many generated outputs used only pack tokens and how many critique findings each produced, and states whether tool delivery improved consistency (this settles the risk in ADR-0003)
+
+## Later
+- Hosted or shared mode with accounts and auth (needs its own ADR; see ADR-0005)
+- Remote HTTP transport (see ADR-0001)
+- Importing tokens from Figma or design-token JSON exports
+- Publishing and discovering community packs
+- Multi-context packs with a `GLOSSARY-MAP.md`-style index for large systems
