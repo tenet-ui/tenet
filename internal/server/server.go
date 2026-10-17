@@ -24,6 +24,24 @@ func New(root string) *mcp.Server {
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ GetPointOfViewInput) (*mcp.CallToolResult, any, error) {
 		return getPointOfView(root), nil, nil
 	})
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "get_tokens",
+		Description: "Returns the design tokens of one category (for example color) and the valid rules linked to it. Pass the category name, which is the first part of a token's name.",
+	}, func(_ context.Context, _ *mcp.CallToolRequest, in GetTokensInput) (*mcp.CallToolResult, any, error) {
+		return deliverTokens(root, in.Category), nil, nil
+	})
+	for _, d := range []struct {
+		name, desc string
+		k          deliveryTarget
+	}{
+		{"get_component", "Returns the design component with the given id (its file name without .md) and the valid rules linked to it.", componentKind},
+		{"get_template", "Returns the design template with the given id (its file name without .md) and the valid rules linked to it.", templateKind},
+		{"get_flow", "Returns the design flow with the given id (its file name without .md) and the valid rules linked to it.", flowKind},
+	} {
+		mcp.AddTool(s, &mcp.Tool{Name: d.name, Description: d.desc}, func(_ context.Context, _ *mcp.CallToolRequest, in GetItemInput) (*mcp.CallToolResult, any, error) {
+			return deliverItem(root, d.k, in.ID), nil, nil
+		})
+	}
 	return s
 }
 
@@ -34,7 +52,7 @@ func getPointOfView(root string) *mcp.CallToolResult {
 	if err != nil {
 		return errorResult(err, root)
 	}
-	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text}}}
+	return textResult(text)
 }
 
 func errorResult(err error, root string) *mcp.CallToolResult {
@@ -47,5 +65,5 @@ func errorResult(err error, root string) *mcp.CallToolResult {
 	default:
 		msg = fmt.Sprintf("could not read %s: %v", designsystem.PointOfViewPath, err)
 	}
-	return &mcp.CallToolResult{IsError: true, Content: []mcp.Content{&mcp.TextContent{Text: msg}}}
+	return toolError(msg)
 }

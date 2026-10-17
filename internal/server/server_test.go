@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -54,30 +56,38 @@ func textOf(t *testing.T, res *mcp.CallToolResult) string {
 	return tc.Text
 }
 
-func TestListsOnlyGetPointOfView(t *testing.T) {
+func TestListsFiveTools(t *testing.T) {
 	session := connect(t, fixtureRoot)
 
 	res, err := session.ListTools(context.Background(), nil)
 	if err != nil {
 		t.Fatalf("list tools: %v", err)
 	}
-	if len(res.Tools) != 1 {
-		t.Fatalf("got %d tools, want 1", len(res.Tools))
+	var names []string
+	for _, tool := range res.Tools {
+		names = append(names, tool.Name)
+		raw, err := json.Marshal(tool.InputSchema)
+		if err != nil {
+			t.Fatalf("marshal input schema: %v", err)
+		}
+		var schema map[string]any
+		if err := json.Unmarshal(raw, &schema); err != nil {
+			t.Fatalf("unmarshal input schema %s: %v", raw, err)
+		}
+		if schema["type"] != "object" {
+			t.Errorf("%s input schema type = %v, want \"object\"", tool.Name, schema["type"])
+		}
 	}
-	if res.Tools[0].Name != "get_point_of_view" {
-		t.Fatalf("got tool %q, want get_point_of_view", res.Tools[0].Name)
+	want := []string{"get_component", "get_flow", "get_point_of_view", "get_template", "get_tokens"}
+	if !reflect.DeepEqual(sortedCopy(names), want) {
+		t.Fatalf("tools = %v, want %v", names, want)
 	}
-	raw, err := json.Marshal(res.Tools[0].InputSchema)
-	if err != nil {
-		t.Fatalf("marshal input schema: %v", err)
-	}
-	var schema map[string]any
-	if err := json.Unmarshal(raw, &schema); err != nil {
-		t.Fatalf("unmarshal input schema %s: %v", raw, err)
-	}
-	if schema["type"] != "object" {
-		t.Fatalf("input schema type = %v, want \"object\" (schema: %s)", schema["type"], raw)
-	}
+}
+
+func sortedCopy(ss []string) []string {
+	out := append([]string(nil), ss...)
+	slices.Sort(out)
+	return out
 }
 
 func TestCallReturnsFixtureText(t *testing.T) {

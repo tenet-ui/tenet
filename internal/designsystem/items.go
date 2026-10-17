@@ -55,7 +55,7 @@ func loadItems(root, relDir string) ([]Item, []Problem) {
 			problems = append(problems, Problem{File: file, Line: line, Message: msg})
 			continue
 		}
-		items = append(items, Item{ID: id, Title: title, Path: file})
+		items = append(items, Item{ID: id, Title: title, Path: file, Body: string(stripBOM(data))})
 	}
 	return items, problems
 }

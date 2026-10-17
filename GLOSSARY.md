@@ -60,6 +60,10 @@ _Avoid_: official Stripe system, Stripe pack
 A distributable, versioned folder of design-system files (tokens, rules, components, templates, flows, point of view) that a user can start from or fork.
 _Avoid_: theme, template bundle, preset
 
+**Linked rule**:
+A rule whose `Applies to:` line names an item or token category, so that a delivery tool returns it with that item. A rule with no `Applies to:` line is valid but is never a linked rule.
+_Avoid_: attached rule, related rule, tagged rule
+
 **Intent**:
 What the product and brand are trying to achieve for a user. Output quality is measured against intent, not against whether the output was AI-made.
 _Avoid_: prompt, goal, request

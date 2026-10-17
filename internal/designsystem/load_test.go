@@ -155,6 +155,58 @@ func TestLoadReportsEveryBadFileAndKeepsTheRest(t *testing.T) {
 	}
 }
 
+func TestLoadReferences(t *testing.T) {
+	base := map[string]string{
+		"design-system/point-of-view.md":     "# Point of view\n\nText.\n",
+		"design-system/tokens.json":          `{"color": {"ink": "#000"}}`,
+		"design-system/components/button.md": "# Button\n",
+		"design-system/templates/page.md":    "# Page\n",
+		"design-system/flows/first-run.md":   "# First run\n",
+	}
+	tests := []struct {
+		name         string
+		rules        string
+		wantProblems []wantProblem
+	}{
+		{
+			name:  "all targets exist",
+			rules: "## a.b\nStatement.\nReason: r.\nApplies to: tokens:color, component:button, template:page, flow:first-run\n",
+		},
+		{
+			name:  "unknown component",
+			rules: "## a.b\nStatement.\nReason: r.\nApplies to: component:card\n",
+			wantProblems: []wantProblem{
+				{4, `rule "a.b" applies to unknown component "card"`},
+			},
+		},
+		{
+			name:  "unknown token category",
+			rules: "# Rules\n\n## a.b\nStatement.\nReason: r.\nApplies to: tokens:space\n",
+			wantProblems: []wantProblem{
+				{6, `rule "a.b" applies to unknown token category "space"`},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			root := t.TempDir()
+			files := map[string]string{"design-system/rules.md": tt.rules}
+			for k, v := range base {
+				files[k] = v
+			}
+			writeTree(t, root, files)
+			pack, problems := Load(root)
+			checkProblems(t, problems, tt.wantProblems)
+			if len(pack.Rules) != 1 {
+				t.Fatalf("got %d rules, want 1", len(pack.Rules))
+			}
+			if !pack.Rules[0].Valid {
+				t.Errorf("rule %q is not valid, want valid (a bad reference is not a parse problem)", pack.Rules[0].ID)
+			}
+		})
+	}
+}
+
 func TestLoadFixtureIsValid(t *testing.T) {
 	pack, problems := Load("../../testdata/project")
 	checkProblems(t, problems, nil)

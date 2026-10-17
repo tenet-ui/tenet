@@ -2,6 +2,7 @@ package designsystem
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -28,12 +29,31 @@ type Token struct {
 	Line     int
 }
 
+// Kind names what a rule can apply to. Its values are the kind part of a "kind:id" ref.
+type Kind string
+
+const (
+	KindComponent Kind = "component"
+	KindTemplate  Kind = "template"
+	KindFlow      Kind = "flow"
+	KindTokens    Kind = "tokens" // id is a token category name
+)
+
+// Ref is one entry of a rule's Applies to: line.
+type Ref struct {
+	Kind Kind
+	ID   string
+	Line int // 1-based line of the Applies to: line in rules.md
+}
+
 // Rule is one "## <id>" entry of rules.md.
 type Rule struct {
 	ID        string
-	Statement string // body lines other than the Reason: line and fenced code, joined with a space
+	Statement string // body lines other than the Reason: line, Applies to: line and fenced code, joined with a space
 	Reason    string
-	Line      int // line of the "## <id>" heading
+	Line      int   // line of the "## <id>" heading
+	AppliesTo []Ref // refs in the order written
+	Valid     bool  // false when parseRules reported any problem for this entry
 }
 
 // Item is one Markdown file in components/, templates/ or flows/.
@@ -41,6 +61,7 @@ type Item struct {
 	ID    string // file name without ".md"
 	Title string // text of the first "# " heading
 	Path  string // slash-separated, relative to the project root
+	Body  string // full file text, BOM stripped
 }
 
 // DesignSystem is everything the loader read from design-system/.
@@ -101,6 +122,7 @@ func Load(root string) (DesignSystem, []Problem) {
 	pack.Flows = flows
 	problems = append(problems, ps...)
 
+	problems = append(problems, checkRefs(pack)...)
 	return pack, problems
 }
 
@@ -120,6 +142,40 @@ func loadRules(root string) ([]Rule, []Problem) {
 		return nil, problems
 	}
 	return parseRules(RulesPath, data)
+}
+
+// checkRefs reports every rule ref that names an item or token category the pack does not have.
+func checkRefs(pack DesignSystem) []Problem {
+	var problems []Problem
+	for _, r := range pack.Rules {
+		for _, ref := range r.AppliesTo {
+			if refExists(pack, ref) {
+				continue
+			}
+			problems = append(problems, Problem{
+				File:    RulesPath,
+				Line:    ref.Line,
+				Message: fmt.Sprintf("rule %q applies to unknown %s %q", r.ID, refLabel(ref.Kind), ref.ID),
+			})
+		}
+	}
+	return problems
+}
+
+func refExists(pack DesignSystem, ref Ref) bool {
+	if ref.Kind == KindTokens {
+		_, ok := pack.Category(ref.ID)
+		return ok
+	}
+	_, ok := pack.Item(ref.Kind, ref.ID)
+	return ok
+}
+
+func refLabel(kind Kind) string {
+	if kind == KindTokens {
+		return "token category"
+	}
+	return string(kind)
 }
 
 // readRequired reads a required file. A missing or unreadable file becomes one problem.

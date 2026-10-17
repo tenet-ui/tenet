@@ -2,6 +2,7 @@ package designsystem
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -160,6 +161,236 @@ func TestParseRules(t *testing.T) {
 				}
 			}
 			checkProblems(t, problems, tt.wantProblems)
+		})
+	}
+}
+
+func TestParseRulesValid(t *testing.T) {
+	tests := []struct {
+		name         string
+		data         string
+		wantValid    bool
+		wantAbsent   bool // the entry is skipped, so no rule is returned
+		wantProblems []wantProblem
+	}{
+		{
+			name:      "fully valid entry",
+			data:      "## a\nStatement.\nReason: r.\n",
+			wantValid: true,
+		},
+		{
+			name:         "no Reason line",
+			data:         "## a\nStatement.\n",
+			wantProblems: []wantProblem{{1, `rule "a" has no Reason: line`}},
+		},
+		{
+			name:         "empty Reason line",
+			data:         "## a\nStatement.\nReason:   \n",
+			wantProblems: []wantProblem{{3, `rule "a" has an empty Reason: line`}},
+		},
+		{
+			name:         "repeated Reason line",
+			data:         "## a\nS.\nReason: x\nReason: y\n",
+			wantProblems: []wantProblem{{4, `rule "a" has more than one Reason: line`}},
+		},
+		{
+			name:         "no statement",
+			data:         "## a\nReason: x\n",
+			wantProblems: []wantProblem{{1, `rule "a" has no statement`}},
+		},
+		{
+			name:         "bad id is skipped",
+			data:         "## Bad Id\nS.\nReason: r\n",
+			wantAbsent:   true,
+			wantProblems: []wantProblem{{1, `rule id "Bad Id" must be`}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rules, problems := parseRules(RulesPath, []byte(tt.data))
+			checkProblems(t, problems, tt.wantProblems)
+			if tt.wantAbsent {
+				if len(rules) != 0 {
+					t.Fatalf("got %d rules, want none", len(rules))
+				}
+				return
+			}
+			if len(rules) != 1 {
+				t.Fatalf("got %d rules, want 1", len(rules))
+			}
+			if rules[0].Valid != tt.wantValid {
+				t.Errorf("Valid = %t, want %t", rules[0].Valid, tt.wantValid)
+			}
+		})
+	}
+}
+
+// formatRefs renders refs as "kind:id@line,..." for comparison.
+func formatRefs(rs []Ref) string {
+	out := make([]string, 0, len(rs))
+	for _, r := range rs {
+		out = append(out, fmt.Sprintf("%s:%s@%d", r.Kind, r.ID, r.Line))
+	}
+	return strings.Join(out, ",")
+}
+
+func TestParseRulesAppliesTo(t *testing.T) {
+	tests := []struct {
+		name         string
+		data         string
+		wantRules    []string // "id|refs|valid"
+		wantProblems []wantProblem
+	}{
+		{
+			name: "two refs, valid",
+			data: joinLines(
+				"# Rules",
+				"",
+				"## color.tokens-only",
+				"Components take colours from tokens.",
+				"Reason: Raw values drift.",
+				"Applies to: tokens:color, component:button",
+			),
+			wantRules: []string{"color.tokens-only|tokens:color@6,component:button@6|true"},
+		},
+		{
+			name: "every kind is a valid ref",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: component:button, template:settings-page, flow:first-run, tokens:color",
+			),
+			wantRules: []string{"a.b|component:button@4,template:settings-page@4,flow:first-run@4,tokens:color@4|true"},
+		},
+		{
+			name: "spaces around entries are accepted",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to:  tokens:color ,component:button  ",
+			),
+			wantRules: []string{"a.b|tokens:color@4,component:button@4|true"},
+		},
+		{
+			name: "applies to line is not part of the statement",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: component:button",
+			),
+			wantRules: []string{"a.b|component:button@4|true"},
+		},
+		{
+			name: "unknown kind is reported and the valid ref is kept",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: thing:x, component:button",
+			),
+			wantRules: []string{"a.b|component:button@4|false"},
+			wantProblems: []wantProblem{
+				{4, `unknown kind "thing" in Applies to:`},
+			},
+		},
+		{
+			name: "entry without a colon",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: button",
+			),
+			wantRules: []string{"a.b||false"},
+			wantProblems: []wantProblem{
+				{4, `without a kind; write kind:id`},
+			},
+		},
+		{
+			name: "invalid item id",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: component:Button",
+			),
+			wantRules: []string{"a.b||false"},
+			wantProblems: []wantProblem{
+				{4, `invalid id "Button" in Applies to:`},
+			},
+		},
+		{
+			name: "trailing comma is an empty entry",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: component:button,",
+			),
+			wantRules: []string{"a.b|component:button@4|false"},
+			wantProblems: []wantProblem{
+				{4, "empty entry in Applies to:"},
+			},
+		},
+		{
+			name: "empty applies to line",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to:",
+			),
+			wantRules: []string{"a.b||false"},
+			wantProblems: []wantProblem{
+				{4, "empty Applies to: line"},
+			},
+		},
+		{
+			name: "second applies to line is reported and the first stands",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"Applies to: component:button",
+				"Applies to: template:settings-page",
+			),
+			wantRules: []string{"a.b|component:button@4|false"},
+			wantProblems: []wantProblem{
+				{5, "more than one Applies to: line"},
+			},
+		},
+		{
+			name: "applies to inside a fence is ignored",
+			data: joinLines(
+				"## a.b",
+				"Statement.",
+				"Reason: r.",
+				"```",
+				"Applies to: component:x",
+				"```",
+			),
+			wantRules: []string{"a.b||true"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rules, problems := parseRules("design-system/rules.md", []byte(tt.data))
+			got := make([]string, 0, len(rules))
+			for _, r := range rules {
+				got = append(got, fmt.Sprintf("%s|%s|%t", r.ID, formatRefs(r.AppliesTo), r.Valid))
+			}
+			if !reflect.DeepEqual(got, tt.wantRules) {
+				t.Errorf("rules = %v, want %v", got, tt.wantRules)
+			}
+			checkProblems(t, problems, tt.wantProblems)
+			for _, r := range rules {
+				if strings.Contains(r.Statement, "Applies to") {
+					t.Errorf("statement %q contains the Applies to: line", r.Statement)
+				}
+			}
 		})
 	}
 }

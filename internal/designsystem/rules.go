@@ -8,6 +8,33 @@ import (
 
 var ruleIDPattern = regexp.MustCompile(`^[a-z0-9]+([.-][a-z0-9]+)*$`)
 
+// parseRef parses one entry of an Applies to: line. It returns the message to report when the entry is invalid.
+func parseRef(ruleID, entry string, line int) (Ref, string) {
+	entry = strings.TrimSpace(entry)
+	if entry == "" {
+		return Ref{}, fmt.Sprintf("rule %q has an empty entry in Applies to:", ruleID)
+	}
+	kindText, id, found := strings.Cut(entry, ":")
+	if !found {
+		return Ref{}, fmt.Sprintf("rule %q has an Applies to: entry %q without a kind; write kind:id", ruleID, entry)
+	}
+	kind := Kind(strings.TrimSpace(kindText))
+	id = strings.TrimSpace(id)
+	switch kind {
+	case KindComponent, KindTemplate, KindFlow:
+		if !itemIDPattern.MatchString(id) {
+			return Ref{}, fmt.Sprintf("rule %q has an invalid id %q in Applies to:", ruleID, id)
+		}
+	case KindTokens:
+		if !namePattern.MatchString(id) {
+			return Ref{}, fmt.Sprintf("rule %q has an invalid id %q in Applies to:", ruleID, id)
+		}
+	default:
+		return Ref{}, fmt.Sprintf("rule %q has an unknown kind %q in Applies to:; use component, template, flow or tokens", ruleID, string(kind))
+	}
+	return Ref{Kind: kind, ID: id, Line: line}, ""
+}
+
 // numberedLine is one body line of a rule entry with its 1-based line number.
 type numberedLine struct {
 	no   int
@@ -64,11 +91,14 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 		}
 		seen[e.id] = e.line
 
+		before := len(problems)
 		var (
 			statement  []string
 			reason     string
 			reasonLine int
 			reasons    int
+			appliesTo  int
+			refs       []Ref
 		)
 		for _, l := range e.body {
 			t := strings.TrimSpace(l.text)
@@ -79,6 +109,27 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 					reasonLine = l.no
 				} else {
 					add(l.no, "rule %q has more than one Reason: line", e.id)
+				}
+				continue
+			}
+			if strings.HasPrefix(t, "Applies to:") {
+				appliesTo++
+				if appliesTo > 1 {
+					add(l.no, "rule %q has more than one Applies to: line", e.id)
+					continue
+				}
+				list := strings.TrimSpace(strings.TrimPrefix(t, "Applies to:"))
+				if list == "" {
+					add(l.no, "rule %q has an empty Applies to: line", e.id)
+					continue
+				}
+				for _, entry := range strings.Split(list, ",") {
+					ref, msg := parseRef(e.id, entry, l.no)
+					if msg != "" {
+						add(l.no, "%s", msg)
+						continue
+					}
+					refs = append(refs, ref)
 				}
 				continue
 			}
@@ -99,6 +150,8 @@ func parseRules(file string, data []byte) ([]Rule, []Problem) {
 			Statement: strings.Join(statement, " "),
 			Reason:    reason,
 			Line:      e.line,
+			AppliesTo: refs,
+			Valid:     len(problems) == before,
 		})
 	}
 	return rules, problems

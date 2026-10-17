@@ -100,3 +100,23 @@ func TestLoadItems(t *testing.T) {
 		})
 	}
 }
+
+func TestLoadItemsBody(t *testing.T) {
+	root := t.TempDir()
+	writeTree(t, root, map[string]string{
+		"design-system/components/button.md": "\xEF\xBB\xBF# Button\n\nAn action.\n",
+	})
+	items, problems := loadItems(root, ComponentsDir)
+	if len(problems) != 0 {
+		t.Fatalf("unexpected problems: %v", problems)
+	}
+	if len(items) != 1 {
+		t.Fatalf("got %d items, want 1", len(items))
+	}
+	if items[0].Title != "Button" {
+		t.Errorf("Title = %q, want %q", items[0].Title, "Button")
+	}
+	if want := "# Button\n\nAn action.\n"; items[0].Body != want {
+		t.Errorf("Body = %q, want %q", items[0].Body, want)
+	}
+}

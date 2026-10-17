@@ -2,7 +2,7 @@
 
 An MCP server that lets Claude users encode their own design system (point of view, tokens, components, templates, flows, rules) and delivers it to the AI at the right moment, so AI-built interfaces carry intent instead of generic "zombie UI". The Stripe design system, reverse-engineered from public sources, is the reference example.
 
-The tool has three commands: serving MCP over stdio (the default), `validate`, and `init`. It has one MCP tool, `get_point_of_view`. The design-system tools arrive in a later slice.
+The tool has three commands: serving MCP over stdio (the default), `validate`, and `init`. It has five MCP tools: `get_point_of_view`, and four delivery tools that return one item at a time (see [Delivery tools](#delivery-tools)).
 
 ## Requirements
 
@@ -71,6 +71,17 @@ Reason: A raw value drifts from the palette the moment one screen is edited alon
 
 A rules file with no rules is valid.
 
+A rule can name the items and token categories it applies to with one `Applies to:` line. Each entry is `kind:id`, where kind is `component`, `template`, `flow` or `tokens`, and for `tokens` the id is a category name:
+
+```markdown
+## color.tokens-only
+Components take colours from tokens, never from raw hex values.
+Reason: A raw value drifts from the palette the moment one screen is edited alone.
+Applies to: tokens:color, component:button
+```
+
+A rule without an `Applies to:` line is valid, but no delivery tool returns it. Every reference must name an item or category that exists; `validate` reports the ones that do not.
+
 **`components/`, `templates/`, `flows/`** each hold Markdown files. The file name, without `.md`, is the item's id and must be lowercase kebab-case (`primary-button.md`). The first line must be a level-1 heading with the item's title:
 
 ```markdown
@@ -83,17 +94,29 @@ Files in those folders that do not end in `.md` are ignored.
 
 See [testdata/project/design-system](testdata/project/design-system) for a complete example that passes `validate`.
 
+## Delivery tools
+
+| Tool | Argument | Returns |
+|---|---|---|
+| `get_tokens` | `category`, for example `color` | one `category.name: value` line per token, then the rules linked to the category |
+| `get_component` | `id`, the file name without `.md` | the file's text, then the rules linked to the component |
+| `get_template` | `id` | the same, for `templates/` |
+| `get_flow` | `id` | the same, for `flows/` |
+
+A rule appears under `## Linked rules` only when it is valid and names the item or category. An unknown id returns an error that lists the ids that exist. An item whose file has a problem returns that problem. Each call reads the design system again, so edits show without restarting the server. Keep each result small: a single item and its rules should stay well under 4 KB.
+
 ## Check the stdio protocol
 
 ```bash
 ( printf '%s\n' \
   '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"check","version":"0"}}}' \
   '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
-  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_point_of_view","arguments":{}}}'; \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_point_of_view","arguments":{}}}' \
+  '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_component","arguments":{"id":"button"}}}'; \
   sleep 3 ) | go run ./cmd/tenet --dir testdata/project
 ```
 
-Stdin must stay open until the responses arrive, which is why the command sleeps. Stdout carries only JSON-RPC responses. The startup line, which includes the design-system summary and any problems, goes to stderr.
+Stdin must stay open until the responses arrive, which is why the command sleeps. The check returns the point of view (id 2) and one delivery tool result, the `button` component (id 3). Stdout carries only JSON-RPC responses. The startup line, which includes the design-system summary and any problems, goes to stderr.
 
 ## Connect Claude Code
 
