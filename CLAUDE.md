@@ -56,6 +56,20 @@ From any phase, when the trigger appears, run the skill:
 - Commits: commit once at the end of each slice, not after tasks or edits; the slice's work lands as one commit on its slice branch, after verification and review pass. Tell every subagent dispatch not to commit. Do not add a `Co-Authored-By` trailer.
 - Branches: each slice is built on its own branch in a git worktree, as `slice-build` prescribes; that flow authorizes the branch and the worktree. Merging to `main` and pushing happen when the human asks.
 
+## Agent skills
+
+### Issue tracker
+
+Local markdown: issues and specs live as files under `.scratch/<feature>/` (no git remote). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five roles, label strings equal to role names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## Project
 
 design-mcp: an MCP server for design. The stack, build, test, lint, and run commands are filled in by Slice 1 (the walking skeleton); until then, `foundation` settles the idea.
