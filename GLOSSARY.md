@@ -1,4 +1,4 @@
-# design-mcp
+# tenet
 
 An MCP server that lets Claude users encode their own design system (point of view, tokens, components, templates, flows, rules) and delivers it to the AI at the right moment, so AI-built interfaces carry intent instead of generic "zombie UI". The Stripe design system, reverse-engineered from public sources, is the reference example.
 
@@ -49,11 +49,11 @@ The distinction that a generated interface can look finished while still failing
 _Avoid_: polish, finished
 
 **Zombie UI**:
-Interfaces built from generic, popular patterns with no intent behind them, the digital equivalent of the post-war zombie buildings. The failure mode design-mcp exists to prevent.
+Interfaces built from generic, popular patterns with no intent behind them, the digital equivalent of the post-war zombie buildings. The failure mode tenet exists to prevent.
 _Avoid_: generic UI, slop
 
 **Reference system**:
-A design system shipped with design-mcp as a worked example. The first one is the reverse-engineered Stripe system. It is labelled unofficial and built only from publicly observable sources.
+A design system shipped with tenet as a worked example. The first one is the reverse-engineered Stripe system. It is labelled unofficial and built only from publicly observable sources.
 _Avoid_: official Stripe system, Stripe pack
 
 **Pack**:

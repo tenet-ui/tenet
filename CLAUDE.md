@@ -72,4 +72,15 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 ## Project
 
-design-mcp: an MCP server for design. The stack, build, test, lint, and run commands are filled in by Slice 1 (the walking skeleton); until then, `foundation` settles the idea.
+tenet: an MCP server that gives Claude users a design system (point of view, tokens, components, templates, flows, rules) to build from. See GLOSSARY.md and docs/adr/.
+
+**Stack:** Go (toolchain from `go.mod`) on `github.com/modelcontextprotocol/go-sdk` v1.8.0, stdio transport (ADR-0007).
+
+**Commands:**
+- Build: `go build -o tenet ./cmd/tenet`
+- Run: `go run ./cmd/tenet --dir testdata/project`
+- Test: `go test ./...`
+- Format check: `test -z "$(gofmt -l .)"`
+- Lint: `go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run`
+
+**Layout:** `cmd/tenet` (entry point and `--dir` handling), `internal/server` (MCP server and tools), `internal/designsystem` (reads design-system files; no MCP types). Stdout carries only MCP protocol; logs go to stderr.

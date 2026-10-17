@@ -6,18 +6,18 @@ Self-approved under the project's no-approval-gates rule (see CLAUDE.md, "Decide
 
 ## Goal
 
-A thin, end-to-end path through design-mcp: a Go binary that runs as a stdio MCP server, exposes one tool, `get_point_of_view`, that returns `design-system/point-of-view.md` from a project directory, plus the repo scaffolding (tests, lint, format, CI, README) that every later slice builds on.
+A thin, end-to-end path through tenet: a Go binary that runs as a stdio MCP server, exposes one tool, `get_point_of_view`, that returns `design-system/point-of-view.md` from a project directory, plus the repo scaffolding (tests, lint, format, CI, README) that every later slice builds on.
 
 ## Acceptance criteria (from docs/roadmap.md)
 
-1. `go run ./cmd/design-mcp` launches a stdio MCP server. A client (Claude Code) lists one tool, `get_point_of_view`, which returns the text of `design-system/point-of-view.md` from the working directory.
+1. `go run ./cmd/tenet` launches a stdio MCP server. A client (Claude Code) lists one tool, `get_point_of_view`, which returns the text of `design-system/point-of-view.md` from the working directory.
 2. The repo has a Go `.gitignore`, one passing `go test`, `gofmt` and `golangci-lint` check, CI running them on push, and a README with run instructions for Claude Code.
 
 ## Decisions
 
 | # | Decision | Reason |
 |---|---|---|
-| D1 | Module path `github.com/empire/design-mcp`. | Matches the repo's remote-style path; no remote exists yet, so the path is only a name. |
+| D1 | Module path `github.com/tenet-ui/tenet`. | Matches the GitHub repository https://github.com/tenet-ui/tenet. |
 | D2 | MCP SDK `github.com/modelcontextprotocol/go-sdk` at **v1.8.0** (latest stable tag). | ADR-0007. Pre-release tags are excluded. |
 | D3 | Go toolchain: the `go` directive written by `go mod init` (1.27 locally). CI uses `actions/setup-go` with `go-version-file: go.mod`. | One version source; CI cannot drift from the module. |
 | D4 | Lint: `golangci-lint` **v2.15.0**, run as `go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run`, both locally and in CI. | Pins the linter without a global install. The machine's global binary is v1.51.2, which cannot read a v2 config. |
@@ -36,8 +36,8 @@ A thin, end-to-end path through design-mcp: a Go binary that runs as a stdio MCP
 ## Architecture
 
 ```
-design-mcp/
-├── cmd/design-mcp/main.go          # thin entry point: flags, root dir, run server on stdio
+tenet/
+├── cmd/tenet/main.go          # thin entry point: flags, root dir, run server on stdio
 ├── internal/designsystem/          # reads design-system files; no MCP types here
 │   ├── pointofview.go              # ReadPointOfView
 │   └── pointofview_test.go
@@ -105,14 +105,14 @@ Handler behaviour:
 
 The handler never returns a non-nil Go error, so the SDK never turns a file problem into a JSON-RPC error.
 
-**`cmd/design-mcp`**
+**`cmd/tenet`**
 
 ```
-design-mcp [--dir <path>]
+tenet [--dir <path>]
 ```
 
 - `--dir` defaults to the process working directory (`os.Getwd`). The path is made absolute with `filepath.Abs`. If it does not exist or is not a directory, the process logs the problem to stderr and exits with status 2.
-- Startup logs one line to stderr: `design-mcp <Version> serving <abs root> on stdio`.
+- Startup logs one line to stderr: `tenet <Version> serving <abs root> on stdio`.
 - Runs `server.New(root).Run(ctx, &mcp.StdioTransport{})` with a context cancelled on SIGINT or SIGTERM (`signal.NotifyContext`). Exits 0 when the client closes stdin or the context is cancelled, 1 on any other error.
 
 ## Data flow
@@ -156,9 +156,9 @@ design-mcp [--dir <path>]
 - call with an empty file returns `IsError: true` and text containing `empty`
 - calling an unknown tool name returns the SDK's error (no crash)
 
-**Entry point (`cmd/design-mcp`)**: a test of `parseRoot(args []string, cwd string) (string, error)`, a pure function holding the `--dir` logic, covering default, relative, missing path, and file-not-directory. `main` itself only wires flags to `server.New` and is not unit-tested; the manual check in the README covers the stdio path.
+**Entry point (`cmd/tenet`)**: a test of `parseRoot(args []string, cwd string) (string, error)`, a pure function holding the `--dir` logic, covering default, relative, missing path, and file-not-directory. `main` itself only wires flags to `server.New` and is not unit-tested; the manual check in the README covers the stdio path.
 
-**Stdio check (acceptance criterion 1)**: the implementer runs the binary once, `go run ./cmd/design-mcp --dir testdata/project`, with piped JSON-RPC input (`initialize`, `notifications/initialized`, `tools/list`, `tools/call`), and confirms that stdout carries only JSON-RPC responses and that the call returns the fixture text. The README documents the same commands for a user to repeat. Connecting the real Claude Code client is recorded as not run in slice 1, because it needs an interactive client.
+**Stdio check (acceptance criterion 1)**: the implementer runs the binary once, `go run ./cmd/tenet --dir testdata/project`, with piped JSON-RPC input (`initialize`, `notifications/initialized`, `tools/list`, `tools/call`), and confirms that stdout carries only JSON-RPC responses and that the call returns the fixture text. The README documents the same commands for a user to repeat. Connecting the real Claude Code client is recorded as not run in slice 1, because it needs an interactive client.
 
 **Quality gates**, all of which must pass before the slice is committed:
 - `go test ./...`
@@ -167,9 +167,9 @@ design-mcp [--dir <path>]
 
 ## Repository files
 
-- `.gitignore`: `/design-mcp`, `/dist/`, `*.test`, `*.out`, `.DS_Store`, `.idea/`, `.vscode/`. `.scratch/` is NOT ignored, because it holds the local issue tracker.
+- `.gitignore`: `/tenet`, `/dist/`, `*.test`, `*.out`, `.DS_Store`, `.idea/`, `.vscode/`. `.scratch/` is NOT ignored, because it holds the local issue tracker.
 - `.golangci.yml`: `version: "2"`, default linters, plus `gofmt` and `errcheck` in the formatter and linter lists.
-- `README.md`: what design-mcp is (one paragraph from GLOSSARY.md); requirements (Go toolchain matching `go.mod`); build and run; running the tests and quality gates; connecting Claude Code (`claude mcp add --transport stdio design-mcp -- /absolute/path/to/design-mcp --dir /absolute/path/to/project`); a note that the point-of-view file is the first thing to write.
+- `README.md`: what tenet is (one paragraph from GLOSSARY.md); requirements (Go toolchain matching `go.mod`); build and run; running the tests and quality gates; connecting Claude Code (`claude mcp add --transport stdio tenet -- /absolute/path/to/tenet --dir /absolute/path/to/project`); a note that the point-of-view file is the first thing to write.
 - `testdata/project/design-system/point-of-view.md`: a short fixture point of view, written for this repo's tests, not a Stripe artifact.
 
 ## Out of scope for slice 1

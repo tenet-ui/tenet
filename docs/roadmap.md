@@ -1,12 +1,12 @@
 # Roadmap
 
-- [ ] Slice 1: Walking skeleton
-  - `go run ./cmd/design-mcp` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
+- [x] Slice 1: Walking skeleton
+  - `go run ./cmd/tenet` launches a stdio MCP server; a client (Claude Code) lists one tool, `get_point_of_view`, that returns the text of `design-system/point-of-view.md` from the working directory
   - Repo has a Go `.gitignore`, one passing `go test`, `gofmt` and `golangci-lint` checks, CI running them on push, and a README with run instructions for Claude Code
 - [ ] Slice 2: Design system pack format and validation
   - A `design-system/` folder with tokens (JSON), rules (Markdown, one rule per entry with a reason), components, templates and flows is read by the server
-  - A `design-mcp validate` command reports missing or malformed files with file and line, and exits non-zero on error
-  - A `design-mcp init` command scaffolds an empty, valid `design-system/` folder
+  - A `tenet validate` command reports missing or malformed files with file and line, and exits non-zero on error
+  - A `tenet init` command scaffolds an empty, valid `design-system/` folder
 - [ ] Slice 3: On-demand delivery tools
   - Tools `get_tokens`, `get_component`, `get_template`, `get_flow` return only the requested item and its linked rules, so a single call stays small (under 4 KB for the bundled example)
   - Each tool returns an error that names the missing item and lists the available ones
