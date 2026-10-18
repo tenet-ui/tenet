@@ -25,7 +25,7 @@
   - A "design-system not found" or "file not found" error names the absolute path searched and the server root, and says how to fix the call; the design-system error no longer tells the model to run `tenet init`
   - Found in use: a client working in another folder passed its project folder as `system`, then gave up on `critique`
 
-- [ ] Slice 8: Motion reference pack
+- [x] Slice 8: Motion reference pack
   - A `packs/motion-reference/` folder passes `tenet validate` and holds an invented, labelled motion personality (a point of view), motion tokens (easing, duration, stagger, spring, frame rate), 8 to 10 rules of which at least 4 are checkable, 3 motion components, one scene template and one storyboard flow
   - The pack README states it is an invented example with no outside source, and that its rule patterns target Remotion and CSS source
   - A fixture Remotion composition that uses only pack tokens reports no findings from `critique`
@@ -37,6 +37,7 @@
   - A committed report counts outputs that use only pack motion tokens and the `critique` findings per output, and states whether delivery improved timing consistency (the slice 6 method)
 
 ## Later
+- Colour rule does not match `oklch()`, the motion pack's colour format, and the default `spring({ frame, fps })` and raw frame counts are not caught; fixing the colour rule needs the token-declaration exemption above (found in slice 8 review)
 - Frame-sampling tool: render a motion piece to frames so the client can review it visually (see ADR-0011)
 - GSAP and Framer Motion rules for the motion pack
 - Hosted or shared mode with accounts and auth (needs its own ADR; see ADR-0005)

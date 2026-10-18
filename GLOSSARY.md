@@ -69,7 +69,7 @@ Interfaces built from generic, popular patterns with no intent behind them, the 
 _Avoid_: generic UI, slop
 
 **Reference system**:
-A design system shipped with tenet as a worked example. The first one is the reverse-engineered Stripe system. It is labelled unofficial and built only from publicly observable sources.
+A design system shipped with tenet as a worked example. The Stripe one is reverse-engineered, unofficial and built only from public sources; the motion one is invented and labelled as such.
 _Avoid_: official Stripe system, Stripe pack
 
 **Pack**:
