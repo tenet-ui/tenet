@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account setup: your business</title>
+<style>
+:root {
+  --color-ink: #0d1b2e;
+  --color-ink-soft: #3d4a5c;
+  --color-ink-quiet: #6b7a90;
+  --color-paper: #ffffff;
+  --color-paper-subdued: #f6f8fb;
+  --color-border: #dfe6ef;
+  --color-brand: #4f3bd6;
+  --color-brand-hover: #3f2fb3;
+  --color-brand-soft: #ece9ff;
+  --color-focus: #7b6ff0;
+  --color-danger: #c42b1c;
+
+  --space-unit: 8px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 16px;
+  --radius-round: 9999px;
+
+  --type-family: "Inter", system-ui, sans-serif;
+  --type-weight-light: 300;
+  --type-weight-bold: 500;
+
+  --motion-standard: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 300ms;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg) var(--space-md);
+  background: var(--color-paper-subdued);
+  color: var(--color-ink);
+  font-family: var(--type-family);
+  line-height: 1.5;
+}
+
+main {
+  width: 100%;
+  max-width: calc(var(--space-unit) * 60);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.progress {
+  display: flex;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  list-style: none;
+}
+.progress li {
+  flex: 1;
+  height: var(--space-xs);
+  border-radius: var(--radius-round);
+  background: var(--color-border);
+}
+.progress li[aria-current="step"] { background: var(--color-brand); }
+
+.eyebrow {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-brand);
+  font-size: 0.875rem;
+  font-weight: var(--type-weight-bold);
+}
+
+h1 {
+  margin: 0 0 var(--space-sm);
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: var(--type-weight-light);
+}
+
+.lede {
+  margin: 0 0 var(--space-xl);
+  color: var(--color-ink-soft);
+  font-weight: var(--type-weight-light);
+}
+
+.field { margin-bottom: var(--space-lg); }
+
+label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-size: 0.875rem;
+  font-weight: var(--type-weight-bold);
+}
+
+input, select {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  min-height: calc(var(--space-unit) * 5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: inherit;
+  transition: border-color var(--motion-duration-fast) var(--motion-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-standard);
+}
+input::placeholder { color: var(--color-ink-quiet); }
+input:hover, select:hover { border-color: var(--color-ink-quiet); }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 var(--space-xs) var(--color-brand-soft);
+}
+
+.hint {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-ink-quiet);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--space-unit) * 5);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: var(--type-weight-bold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-standard),
+              border-color var(--motion-duration-fast) var(--motion-standard);
+}
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--space-xs) var(--color-focus);
+}
+.button-primary {
+  background: var(--color-brand);
+  color: var(--color-paper);
+}
+.button-primary:hover { background: var(--color-brand-hover); }
+.button-secondary {
+  background: var(--color-paper);
+  border-color: var(--color-border);
+  color: var(--color-ink);
+}
+.button-secondary:hover { background: var(--color-paper-subdued); border-color: var(--color-ink-quiet); }
+
+@media (max-width: 480px) {
+  main { padding: var(--space-lg) var(--space-md); }
+  .actions { flex-direction: column-reverse; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+<main>
+  <ol class="progress" aria-label="Account setup progress">
+    <li aria-current="step"></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ol>
+
+  <p class="eyebrow">Account setup · Step 1</p>
+  <h1>Tell us about your business</h1>
+  <p class="lede">We use this to set up your account. You can change it later.</p>
+
+  <form action="#" method="post">
+    <div class="field">
+      <label for="business-name">Business name</label>
+      <input id="business-name" name="business-name" type="text" autocomplete="organization" placeholder="Acme Candles" required>
+      <p class="hint">The name your customers know you by.</p>
+    </div>
+
+    <div class="field">
+      <label for="country">Country</label>
+      <select id="country" name="country" autocomplete="country" required>
+        <option value="" selected disabled>Select a country</option>
+        <option>Australia</option>
+        <option>Canada</option>
+        <option>France</option>
+        <option>Germany</option>
+        <option>India</option>
+        <option>Ireland</option>
+        <option>Japan</option>
+        <option>Netherlands</option>
+        <option>Spain</option>
+        <option>Sweden</option>
+        <option>United Kingdom</option>
+        <option>United States</option>
+      </select>
+      <p class="hint">Where your business is registered or operates.</p>
+    </div>
+
+    <div class="actions">
+      <a class="button button-secondary" href="#back">Back</a>
+      <button class="button button-primary" type="submit">Continue</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>

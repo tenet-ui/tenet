@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up your account – Step 1 of 3</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #1b1f24;
+    --muted: #5b6470;
+    --border: #c9ced6;
+    --accent: #1f5eff;
+    --accent-hover: #174bd1;
+    --accent-text: #ffffff;
+    --focus: #1f5eff;
+    --track: #dde1e7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151a;
+      --surface: #1b2027;
+      --text: #eef0f3;
+      --muted: #a2abb7;
+      --border: #3a424d;
+      --accent: #6b95ff;
+      --accent-hover: #86a9ff;
+      --accent-text: #0b1020;
+      --focus: #9bb8ff;
+      --track: #333a45;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  }
+  .progress { margin: 0 0 24px; }
+  .progress-label {
+    margin: 0 0 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  .progress-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .progress-bar li {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--track);
+  }
+  .progress-bar li.done { background: var(--accent); }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+  .intro {
+    margin: 0 0 24px;
+    color: var(--muted);
+  }
+  .field { margin: 0 0 20px; }
+  label {
+    display: block;
+    margin: 0 0 6px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .hint {
+    margin: 6px 0 0;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  input[type="text"], select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  select { cursor: pointer; }
+  input[type="text"]:focus-visible,
+  select:focus-visible,
+  .btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  input:user-invalid, select:user-invalid { border-color: #d12c2c; }
+  .actions {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 22px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .btn-secondary:hover { background: var(--bg); }
+  @media (max-width: 420px) {
+    main { padding: 24px 18px; }
+    .actions { flex-direction: column-reverse; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <nav class="progress" aria-label="Account setup progress">
+    <p class="progress-label">Step 1 of 3 · Business details</p>
+    <ol class="progress-bar">
+      <li class="done" aria-current="step"><span hidden>Step 1: Business details (current)</span></li>
+      <li><span hidden>Step 2</span></li>
+      <li><span hidden>Step 3</span></li>
+    </ol>
+  </nav>
+
+  <h1>Tell us about your business</h1>
+  <p class="intro">This helps us set up your account. You can change these details later.</p>
+
+  <form action="#" method="get">
+    <div class="field">
+      <label for="business-name">Business name</label>
+      <input type="text" id="business-name" name="business_name" required maxlength="100" autocomplete="organization" aria-describedby="business-name-hint">
+      <p class="hint" id="business-name-hint">The name your customers know you by.</p>
+    </div>
+
+    <div class="field">
+      <label for="country">Country</label>
+      <select id="country" name="country" required autocomplete="country" aria-describedby="country-hint">
+        <option value="" selected disabled>Select a country</option>
+        <option value="AU">Australia</option>
+        <option value="AT">Austria</option>
+        <option value="BE">Belgium</option>
+        <option value="BR">Brazil</option>
+        <option value="CA">Canada</option>
+        <option value="CL">Chile</option>
+        <option value="CO">Colombia</option>
+        <option value="DK">Denmark</option>
+        <option value="EG">Egypt</option>
+        <option value="FI">Finland</option>
+        <option value="FR">France</option>
+        <option value="DE">Germany</option>
+        <option value="GH">Ghana</option>
+        <option value="GR">Greece</option>
+        <option value="IN">India</option>
+        <option value="ID">Indonesia</option>
+        <option value="IE">Ireland</option>
+        <option value="IL">Israel</option>
+        <option value="IT">Italy</option>
+        <option value="JP">Japan</option>
+        <option value="KE">Kenya</option>
+        <option value="MX">Mexico</option>
+        <option value="NL">Netherlands</option>
+        <option value="NZ">New Zealand</option>
+        <option value="NG">Nigeria</option>
+        <option value="NO">Norway</option>
+        <option value="PK">Pakistan</option>
+        <option value="PE">Peru</option>
+        <option value="PH">Philippines</option>
+        <option value="PL">Poland</option>
+        <option value="PT">Portugal</option>
+        <option value="SA">Saudi Arabia</option>
+        <option value="SG">Singapore</option>
+        <option value="ZA">South Africa</option>
+        <option value="KR">South Korea</option>
+        <option value="ES">Spain</option>
+        <option value="SE">Sweden</option>
+        <option value="CH">Switzerland</option>
+        <option value="TR">Turkey</option>
+        <option value="AE">United Arab Emirates</option>
+        <option value="GB">United Kingdom</option>
+        <option value="US">United States</option>
+        <option value="VN">Vietnam</option>
+        <option value="OTHER">Other</option>
+      </select>
+      <p class="hint" id="country-hint">Where your business is registered or operates from.</p>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Continue</button>
+      <a href="/" class="btn btn-secondary">Back</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

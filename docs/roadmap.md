@@ -17,7 +17,7 @@
   - A `packs/stripe-reference/` folder built from `docs/research/stripe-design-system.md`, with tokens, rules, components, one template and one flow, all citing their research source
   - The pack ships no Stripe logos or wordmarks, and its README states it is an unofficial reverse engineering
   - Running `critique` against a fixture page that uses only pack tokens reports no findings
-- [ ] Slice 6: Consistency experiment
+- [x] Slice 6: Consistency experiment
   - Five fixed briefs are run twice each: once with a plain prompt, once with the MCP tools enabled and the reference pack loaded
   - A committed report lists how many generated outputs used only pack tokens and how many critique findings each produced, and states whether tool delivery improved consistency (this settles the risk in ADR-0003)
 
@@ -29,3 +29,4 @@
 - Multi-context packs with a `GLOSSARY-MAP.md`-style index for large systems
 - Cap the number of findings `critique` returns, with a "showing N of M" header (a 1 MiB file of matches can produce about 31 MB of text; the format needs a decision)
 - Reconcile ADR-0002's "critique checklist" with the loader: the ADR lists one, but no slice reads or requires it (found in slice 5 review)
+- Consistency check: exempt token-declaration blocks (`:root` custom properties that hold pack values) from the `color.tokens-only` token-only test; the slice 6 experiment marked every tools output not token-only because its token declarations match the raw-value pattern (see experiments/consistency/REPORT.md)

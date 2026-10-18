@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payments</title>
+<style>
+  :root {
+    --color-ink: #0d1b2e;
+    --color-ink-soft: #3d4a5c;
+    --color-ink-quiet: #6b7a90;
+    --color-paper: #ffffff;
+    --color-paper-subdued: #f6f8fb;
+    --color-border: #dfe6ef;
+    --color-brand: #4f3bd6;
+    --color-brand-hover: #3f2fb3;
+    --color-focus: #7b6ff0;
+
+    --space-unit: 8px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    --radius-md: 6px;
+    --radius-lg: 16px;
+
+    --type-family: "Inter", system-ui, sans-serif;
+    --type-weight-light: 300;
+    --type-weight-bold: 500;
+
+    --motion-standard: cubic-bezier(0.25, 1, 0.5, 1);
+    --motion-duration-fast: 120ms;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--color-paper-subdued);
+    color: var(--color-ink);
+    font-family: var(--type-family);
+    font-weight: var(--type-weight-light);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: calc(var(--space-unit) * 100);
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  h1.page-title {
+    margin: 0 0 var(--space-lg);
+    font-size: 1.75rem;
+    font-weight: var(--type-weight-bold);
+    line-height: 1.2;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: calc(var(--space-xl) * 2) var(--space-lg);
+    background: var(--color-paper);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .empty h2 {
+    margin: 0 0 var(--space-sm);
+    font-size: 1.5rem;
+    font-weight: var(--type-weight-light);
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+
+  .empty p {
+    margin: 0 0 var(--space-lg);
+    max-width: calc(var(--space-unit) * 50);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(var(--space-unit) * 5);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-brand);
+    color: var(--color-paper);
+    border: 0;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: var(--type-weight-bold);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--motion-duration-fast) var(--motion-standard);
+  }
+
+  .button:hover { background: var(--color-brand-hover); }
+
+  .button:focus-visible {
+    outline: var(--space-xs) solid var(--color-focus);
+    outline-offset: var(--space-xs);
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1 class="page-title">Payments</h1>
+    <section class="empty" aria-labelledby="empty-title">
+      <h2 id="empty-title">No payments yet.</h2>
+      <p>Payments appear here once a customer pays you.</p>
+      <a class="button" href="#create-payment-link">Create payment link</a>
+    </section>
+  </main>
+</body>
+</html>

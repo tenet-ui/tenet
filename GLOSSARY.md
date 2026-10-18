@@ -48,6 +48,10 @@ _Avoid_: review, lint, validation
 One breach of one rule in one file, with the line, the rule's id, the matched text and the rule's fix. Critique returns findings; it does not pass or fail a file.
 _Avoid_: error, violation, issue, warning
 
+**Token-only output**:
+A generated page with no critique findings against the pack and at least one named `var(--...)` value. It is a proxy: it does not check that each value is the right token for its role, and it counts a token declaration as a raw value (see experiments/consistency/REPORT.md).
+_Avoid_: clean output, pure output
+
 **Checkable rule**:
 A valid rule with a `Forbid:` pattern. `critique` checks only checkable rules.
 _Avoid_: automated rule, lint rule

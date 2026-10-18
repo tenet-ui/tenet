@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payments</title>
+<style>
+:root {
+  --color-ink: #0d1b2e;
+  --color-ink-soft: #3d4a5c;
+  --color-ink-quiet: #6b7a90;
+  --color-paper: #ffffff;
+  --color-paper-subdued: #f6f8fb;
+  --color-border: #dfe6ef;
+  --color-brand: #4f3bd6;
+  --color-brand-hover: #3f2fb3;
+  --color-brand-soft: #ece9ff;
+  --color-focus: #7b6ff0;
+  --color-danger: #c42b1c;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-round: 9999px;
+  --type-family: "Inter", system-ui, sans-serif;
+  --type-weight-light: 300;
+  --type-weight-bold: 500;
+  --motion-standard: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-duration-fast: 120ms;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--color-paper-subdued);
+  color: var(--color-ink);
+  font-family: var(--type-family);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+main {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md);
+}
+header.page { margin-bottom: var(--space-lg); }
+h1 {
+  margin: 0 0 var(--space-xs);
+  font-size: 2rem;
+  line-height: 1.25;
+  font-weight: var(--type-weight-light);
+}
+header.page p { margin: 0; color: var(--color-ink-soft); }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+form.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+.field { display: flex; flex-direction: column; gap: var(--space-xs); }
+label {
+  font-size: 0.8125rem;
+  font-weight: var(--type-weight-bold);
+  color: var(--color-ink-soft);
+}
+select {
+  min-width: 11rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: inherit;
+  transition: border-color var(--motion-duration-fast) var(--motion-standard);
+}
+select:hover { border-color: var(--color-ink-quiet); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: var(--type-weight-bold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-standard),
+              border-color var(--motion-duration-fast) var(--motion-standard);
+}
+.btn:hover { background: var(--color-paper-subdued); border-color: var(--color-ink-quiet); }
+.btn.primary {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-paper);
+}
+.btn.primary:hover { background: var(--color-brand-hover); border-color: var(--color-brand-hover); }
+select:focus-visible, .btn:focus-visible, td a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.card {
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; }
+caption {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+th, td {
+  padding: var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+th {
+  background: var(--color-paper-subdued);
+  color: var(--color-ink-quiet);
+  font-size: 0.8125rem;
+  font-weight: var(--type-weight-bold);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr { position: relative; transition: background-color var(--motion-duration-fast) var(--motion-standard); }
+tbody tr:hover { background: var(--color-paper-subdued); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+td a {
+  color: var(--color-ink);
+  font-weight: var(--type-weight-bold);
+  text-decoration: none;
+}
+td a::after { content: ""; position: absolute; inset: 0; }
+td a:hover { color: var(--color-brand); }
+td.customer { color: var(--color-ink-soft); }
+td.date { color: var(--color-ink-soft); }
+
+.status {
+  display: inline-block;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-round);
+  background: var(--color-paper-subdued);
+  color: var(--color-ink-soft);
+  font-size: 0.8125rem;
+  font-weight: var(--type-weight-bold);
+}
+.status.paid { background: var(--color-brand-soft); border-color: var(--color-brand-soft); color: var(--color-brand-hover); }
+.status.failed { background: var(--color-paper); border-color: var(--color-danger); color: var(--color-danger); }
+</style>
+</head>
+<body>
+<main>
+  <header class="page">
+    <h1>Payments</h1>
+    <p>Every payment your business has received, with its customer, status and date. Select a row to see the full payment.</p>
+  </header>
+
+  <div class="toolbar">
+    <form class="filter" method="get" action="">
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">All statuses</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+          <option value="refunded">Refunded</option>
+        </select>
+      </div>
+      <button class="btn primary" type="submit">Apply filter</button>
+    </form>
+    <a class="btn" href="/payments/export.csv" download>Export payments</a>
+  </div>
+
+  <div class="card">
+    <table>
+      <caption>Payments</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="num">Amount</th>
+          <th scope="col">Customer</th>
+          <th scope="col">Status</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num"><a href="/payments/pay_1048">$128.00</a></td>
+          <td class="customer">Amira Haddad</td>
+          <td><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-17">Oct 17, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="num"><a href="/payments/pay_1047">$42.50</a></td>
+          <td class="customer">Jonas Weber</td>
+          <td><span class="status">Pending</span></td>
+          <td class="date"><time datetime="2026-10-16">Oct 16, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="num"><a href="/payments/pay_1046">$310.00</a></td>
+          <td class="customer">Lena Okafor</td>
+          <td><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-15">Oct 15, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="num"><a href="/payments/pay_1045">$19.99</a></td>
+          <td class="customer">Mateo Silva</td>
+          <td><span class="status failed">Failed</span></td>
+          <td class="date"><time datetime="2026-10-13">Oct 13, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="num"><a href="/payments/pay_1044">$76.00</a></td>
+          <td class="customer">Priya Nair</td>
+          <td><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-12">Oct 12, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="num"><a href="/payments/pay_1043">$225.40</a></td>
+          <td class="customer">Tomás Rivera</td>
+          <td><span class="status">Refunded</span></td>
+          <td class="date"><time datetime="2026-10-10">Oct 10, 2026</time></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

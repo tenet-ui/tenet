@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payments</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --border: #e3e6eb;
+    --text: #14181f;
+    --muted: #5b6472;
+    --accent: #3b5bdb;
+    --accent-hover: #2f49b5;
+    --accent-ink: #ffffff;
+    --icon-bg: #eef1fd;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1218;
+      --surface: #171b23;
+      --border: #272d38;
+      --text: #f0f2f6;
+      --muted: #a0a9b8;
+      --accent: #7c93f5;
+      --accent-hover: #96a8f8;
+      --accent-ink: #0f1218;
+      --icon-bg: #212842;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px;
+  }
+
+  h1.page {
+    margin: 0 0 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 72px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    background: var(--icon-bg);
+    color: var(--accent);
+  }
+
+  .icon svg { width: 28px; height: 28px; }
+
+  .empty h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .empty p {
+    margin: 0 0 24px;
+    max-width: 40ch;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .action:hover { background: var(--accent-hover); }
+
+  .action:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .action { transition: none; }
+  }
+
+  @media (max-width: 480px) {
+    .empty { padding: 48px 20px; }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1 class="page">Payments</h1>
+    <section class="empty" aria-labelledby="empty-title">
+      <div class="icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect>
+          <path d="M2.5 10h19"></path>
+          <path d="M6.5 15h4"></path>
+        </svg>
+      </div>
+      <h2 id="empty-title">No payments yet</h2>
+      <p>Share a payment link with a customer and their payment will show up here.</p>
+      <a class="action" href="/payment-links/new">Create payment link</a>
+    </section>
+  </main>
+</body>
+</html>

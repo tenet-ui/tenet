@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account settings</title>
+<style>
+:root {
+  --color-ink: #0d1b2e;
+  --color-ink-soft: #3d4a5c;
+  --color-ink-quiet: #6b7a90;
+  --color-paper: #ffffff;
+  --color-paper-subdued: #f6f8fb;
+  --color-border: #dfe6ef;
+  --color-brand: #4f3bd6;
+  --color-brand-hover: #3f2fb3;
+  --color-brand-soft: #ece9ff;
+  --color-focus: #7b6ff0;
+  --color-danger: #c42b1c;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-md: 6px;
+  --radius-lg: 16px;
+
+  --type-family: "Inter", system-ui, sans-serif;
+  --type-weight-light: 300;
+  --type-weight-bold: 500;
+
+  --motion-standard: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-duration-fast: 120ms;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: var(--color-paper-subdued);
+  color: var(--color-ink);
+  font-family: var(--type-family);
+}
+
+.card {
+  width: 100%;
+  max-width: 32rem;
+  padding: var(--space-xl);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+h1 {
+  margin: 0 0 var(--space-sm);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: var(--type-weight-light);
+  color: var(--color-ink);
+}
+
+p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.spacer { flex: 1 1 auto; }
+
+button {
+  font-family: var(--type-family);
+  font-size: 1rem;
+  font-weight: var(--type-weight-bold);
+  line-height: 1.5;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.primary {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-paper);
+}
+.primary:hover { background: var(--color-brand-hover); border-color: var(--color-brand-hover); }
+
+.secondary:hover { background: var(--color-paper-subdued); }
+
+.danger { color: var(--color-danger); }
+.danger:hover { background: var(--color-paper-subdued); border-color: var(--color-danger); }
+</style>
+</head>
+<body>
+  <main class="card" aria-labelledby="settings-title">
+    <h1 id="settings-title">Account settings</h1>
+    <p>Update your account details, or permanently delete your account and its data.</p>
+    <div class="actions">
+      <button type="button" class="primary">Save</button>
+      <button type="button" class="secondary">Cancel</button>
+      <span class="spacer"></span>
+      <button type="button" class="secondary danger">Delete account</button>
+    </div>
+  </main>
+</body>
+</html>

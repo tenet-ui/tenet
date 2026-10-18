@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payments</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1b1f27;
+    --muted: #5d6675;
+    --border: #dde1e8;
+    --accent: #2457d6;
+    --accent-text: #ffffff;
+    --row-hover: #f1f4fb;
+    --ok-bg: #e2f5e9; --ok-fg: #14602f;
+    --pending-bg: #fdf1d6; --pending-fg: #7a5200;
+    --failed-bg: #fde4e4; --failed-fg: #9b1c1c;
+    --refunded-bg: #e8e9ee; --refunded-fg: #3f4655;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121418;
+      --surface: #1b1e25;
+      --text: #e8eaef;
+      --muted: #9aa3b2;
+      --border: #2c313b;
+      --accent: #7da2ff;
+      --accent-text: #0e1320;
+      --row-hover: #222735;
+      --ok-bg: #153524; --ok-fg: #8fe0ae;
+      --pending-bg: #3b2e10; --pending-fg: #f1cd7a;
+      --failed-bg: #421b1b; --failed-fg: #f5a3a3;
+      --refunded-bg: #2b303b; --refunded-fg: #b8c0cf;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 56px;
+  }
+  h1 { margin: 0 0 4px; font-size: 1.75rem; line-height: 1.25; }
+  .lede { margin: 0 0 24px; color: var(--muted); max-width: 60ch; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
+  .field.grow { flex: 1 1 220px; }
+  input, select, .btn {
+    font: inherit;
+    min-height: 40px;
+    border-radius: 8px;
+  }
+  input, select {
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
+  input { width: 100%; }
+  .actions { display: flex; gap: 8px; margin-left: auto; }
+  .btn {
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+  .btn:hover { filter: brightness(0.96); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  caption {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  th, td { padding: 14px 16px; text-align: left; }
+  thead th {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  tbody tr { position: relative; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: 0; }
+  tbody tr:hover { background: var(--row-hover); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.amount a {
+    color: var(--text);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  /* stretch the amount link over the whole row so the entire row is clickable */
+  td.amount a::after { content: ""; position: absolute; inset: 0; }
+  tbody tr:has(a:focus-visible) { outline: 3px solid var(--accent); outline-offset: -3px; }
+  a:focus-visible { outline: none; }
+  .customer small { display: block; color: var(--muted); }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .status::before {
+    content: "";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status.paid { background: var(--ok-bg); color: var(--ok-fg); }
+  .status.pending { background: var(--pending-bg); color: var(--pending-fg); }
+  .status.failed { background: var(--failed-bg); color: var(--failed-fg); }
+  .status.refunded { background: var(--refunded-bg); color: var(--refunded-fg); }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .pager a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .pager a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    main { padding-top: 24px; }
+    .actions { margin-left: 0; width: 100%; }
+    .actions .btn { flex: 1; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    table, tbody, tr, td { display: block; }
+    tbody tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2px 12px;
+      padding: 14px 16px;
+    }
+    td { padding: 0; }
+    td.amount { grid-column: 1; grid-row: 1; font-size: 1.125rem; }
+    td.status-cell { grid-column: 2; grid-row: 1; text-align: right; }
+    td.customer { grid-column: 1; grid-row: 2; }
+    td.date { grid-column: 2; grid-row: 2; text-align: right; color: var(--muted); font-size: 0.875rem; }
+    .num { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Payments</h1>
+  <p class="lede">Every payment received by your shop. Select a row to see the full details, or filter the list and export it as a spreadsheet.</p>
+
+  <form class="toolbar" method="get" action="/payments" role="search" aria-label="Filter payments">
+    <div class="field grow">
+      <label for="q">Customer or email</label>
+      <input id="q" name="q" type="search" placeholder="Search customers">
+    </div>
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="">All statuses</option>
+        <option value="paid">Paid</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+        <option value="refunded">Refunded</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="range">Date</label>
+      <select id="range" name="range">
+        <option value="">All time</option>
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn primary" type="submit">Apply filters</button>
+      <button class="btn" type="submit" formaction="/payments/export.csv">Export CSV</button>
+    </div>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Showing 8 of 126 payments, newest first</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="num">Amount</th>
+          <th scope="col">Customer</th>
+          <th scope="col">Status</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1048">$84.00</a></td>
+          <td class="customer">Maria Lopez<small>maria@example.com</small></td>
+          <td class="status-cell"><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-17">Oct 17, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1047">$249.50</a></td>
+          <td class="customer">Daniel Okafor<small>daniel@example.com</small></td>
+          <td class="status-cell"><span class="status pending">Pending</span></td>
+          <td class="date"><time datetime="2026-10-17">Oct 17, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1046">$19.99</a></td>
+          <td class="customer">Aiko Tanaka<small>aiko@example.com</small></td>
+          <td class="status-cell"><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-15">Oct 15, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1045">$120.00</a></td>
+          <td class="customer">Samuel Brandt<small>sam@example.com</small></td>
+          <td class="status-cell"><span class="status failed">Failed</span></td>
+          <td class="date"><time datetime="2026-10-14">Oct 14, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1044">$62.75</a></td>
+          <td class="customer">Priya Raman<small>priya@example.com</small></td>
+          <td class="status-cell"><span class="status refunded">Refunded</span></td>
+          <td class="date"><time datetime="2026-10-12">Oct 12, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1043">$310.00</a></td>
+          <td class="customer">Chloé Martin<small>chloe@example.com</small></td>
+          <td class="status-cell"><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-10">Oct 10, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1042">$45.20</a></td>
+          <td class="customer">Tomás Herrera<small>tomas@example.com</small></td>
+          <td class="status-cell"><span class="status paid">Paid</span></td>
+          <td class="date"><time datetime="2026-10-08">Oct 8, 2026</time></td>
+        </tr>
+        <tr>
+          <td class="amount num"><a href="/payments/pay_1041">$99.00</a></td>
+          <td class="customer">Leila Haddad<small>leila@example.com</small></td>
+          <td class="status-cell"><span class="status pending">Pending</span></td>
+          <td class="date"><time datetime="2026-10-06">Oct 6, 2026</time></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="pager" aria-label="Pagination">
+    <span>Page 1 of 16</span>
+    <a href="/payments?page=2" rel="next">Next page →</a>
+  </nav>
+</main>
+</body>
+</html>

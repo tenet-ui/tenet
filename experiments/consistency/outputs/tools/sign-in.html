@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<style>
+:root {
+  --color-ink: #0d1b2e;
+  --color-ink-soft: #3d4a5c;
+  --color-ink-quiet: #6b7a90;
+  --color-paper: #ffffff;
+  --color-paper-subdued: #f6f8fb;
+  --color-border: #dfe6ef;
+  --color-brand: #4f3bd6;
+  --color-brand-hover: #3f2fb3;
+  --color-brand-soft: #ece9ff;
+  --color-focus: #7b6ff0;
+  --color-danger: #c42b1c;
+
+  --space-unit: 8px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 16px;
+  --radius-round: 9999px;
+
+  --motion-standard: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 300ms;
+
+  --type-family: "Inter", system-ui, sans-serif;
+  --type-weight-light: 300;
+  --type-weight-bold: 500;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: var(--color-paper-subdued);
+  color: var(--color-ink);
+  font-family: var(--type-family);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.card {
+  width: 100%;
+  max-width: calc(var(--space-xl) * 13);
+  padding: var(--space-xl);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+h1 {
+  margin: 0 0 var(--space-sm);
+  font-size: 2rem;
+  font-weight: var(--type-weight-light);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  margin: 0 0 var(--space-lg);
+  color: var(--color-ink-soft);
+}
+
+form {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+label {
+  font-size: 0.875rem;
+  font-weight: var(--type-weight-bold);
+  color: var(--color-ink);
+}
+
+input {
+  width: 100%;
+  min-height: calc(var(--space-unit) * 5);
+  padding: var(--space-sm) var(--space-md);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--motion-duration-fast) var(--motion-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-standard);
+}
+
+input:hover { border-color: var(--color-ink-quiet); }
+
+input:focus {
+  outline: none;
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 var(--space-xs) var(--color-brand-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(var(--space-unit) * 5);
+  padding: var(--space-sm) var(--space-md);
+  font: inherit;
+  font-weight: var(--type-weight-bold);
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: background-color var(--motion-duration-fast) var(--motion-standard),
+              border-color var(--motion-duration-fast) var(--motion-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-standard);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--space-xs) var(--color-focus);
+}
+
+.btn-primary {
+  margin-top: var(--space-sm);
+  color: var(--color-paper);
+  background: var(--color-brand);
+}
+
+.btn-primary:hover { background: var(--color-brand-hover); }
+
+.btn-secondary {
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-paper-subdued);
+  border-color: var(--color-ink-quiet);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+  color: var(--color-ink-quiet);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>Sign in</h1>
+  <p class="lede">Welcome back. Enter your details to continue.</p>
+
+  <form action="#" method="post">
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+
+  <div class="divider">or</div>
+
+  <a class="btn btn-secondary" href="#create-account">Create an account</a>
+</main>
+</body>
+</html>
