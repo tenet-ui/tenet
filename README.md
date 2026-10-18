@@ -119,12 +119,12 @@ A rule appears under `## Linked rules` only when it is valid and names the item 
 
 ## Critique tool
 
-`critique` checks one UI source file against the rules of a design system that have a `Forbid:` line. It returns one finding per match:
+`critique` checks one UI source file against the rules of a design system that have a `Forbid:` line. It returns one finding per match. `file` is required and `system` is optional: omit it to check against the design system the server was started with.
 
 | Argument | Meaning |
 |---|---|
-| `file` | the source file, relative to the project root or absolute |
-| `system` | the folder holding its `design-system/`, relative to the project root; `.` for the project root |
+| `file` | the source file. A relative path resolves against the server's `--dir`, so pass an absolute path for a file in another folder |
+| `system` | optional. The folder holding its `design-system/`, relative to the server's `--dir` or absolute. Omit it, or pass `.`, for the system the server was started with. Do not pass your project folder as `system` |
 
 A finding reads:
 

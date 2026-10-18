@@ -26,7 +26,7 @@ func New(root string) *mcp.Server {
 	})
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "critique",
-		Description: "Checks one UI source file against the design system's rules that have a Forbid: pattern. Returns one finding per match, naming the rule, the line, the matched text and the fix. Pass file (a path to the source file) and system (the folder holding design-system/; . for the project root).",
+		Description: "Checks one UI source file against the design system's rules that have a Forbid: pattern. Returns one finding per match, naming the rule, the line, the matched text and the fix. Pass file, the path to the source file; relative paths resolve against the server root, so pass an absolute path for a file elsewhere. system is optional and defaults to the design system this server serves; leave it out.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, in CritiqueInput) (*mcp.CallToolResult, any, error) {
 		return critiqueTool(root, in), nil, nil
 	})

@@ -20,7 +20,7 @@
 - [x] Slice 6: Consistency experiment
   - Five fixed briefs are run twice each: once with a plain prompt, once with the MCP tools enabled and the reference pack loaded
   - A committed report lists how many generated outputs used only pack tokens and how many critique findings each produced, and states whether tool delivery improved consistency (this settles the risk in ADR-0003)
-- [ ] Slice 7: Make `critique` hard to misuse
+- [x] Slice 7: Make `critique` hard to misuse
   - `critique` works with `file` alone: an empty or missing `system` means `.`, the design system the server was started with
   - A "design-system not found" or "file not found" error names the absolute path searched and the server root, and says how to fix the call; the design-system error no longer tells the model to run `tenet init`
   - Found in use: a client working in another folder passed its project folder as `system`, then gave up on `critique`
@@ -34,3 +34,4 @@
 - Cap the number of findings `critique` returns, with a "showing N of M" header (a 1 MiB file of matches can produce about 31 MB of text; the format needs a decision)
 - Reconcile ADR-0002's "critique checklist" with the loader: the ADR lists one, but no slice reads or requires it (found in slice 5 review)
 - Consistency check: exempt token-declaration blocks (`:root` custom properties that hold pack values) from the `color.tokens-only` token-only test; the slice 6 experiment marked every tools output not token-only because its token declarations match the raw-value pattern (see experiments/consistency/REPORT.md)
+- `critique` file-not-found error says relative paths resolve against the server root even when the missing path was absolute; word it by case (found in slice 7 review)

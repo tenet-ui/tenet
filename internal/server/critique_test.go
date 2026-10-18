@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,6 +41,22 @@ func TestCritiqueNoFindings(t *testing.T) {
 	want := "No findings in ui/page.html against .. Checked 1 rule(s).\n"
 	if res.IsError || textOf(t, res) != want {
 		t.Errorf("got IsError=%t %q, want %q", res.IsError, textOf(t, res), want)
+	}
+}
+
+func TestCritiqueBlankSystemIsDot(t *testing.T) {
+	root := t.TempDir()
+	writeDesignSystem(t, root, map[string]string{
+		"design-system/point-of-view.md": "# Point of view\n\nText.\n",
+		"design-system/tokens.json":      "{}",
+		"design-system/rules.md":         "## r\nS.\nReason: R.\nForbid: x*\nFix: F.\n",
+		"ui/page.html":                   "clean\n",
+	})
+	session := connect(t, root)
+	dot := callTool(t, session, "critique", map[string]any{"file": "ui/page.html", "system": "."})
+	blank := callTool(t, session, "critique", map[string]any{"file": "ui/page.html", "system": "  "})
+	if blank.IsError || textOf(t, blank) != textOf(t, dot) {
+		t.Errorf("blank system: IsError=%t %q, want %q", blank.IsError, textOf(t, blank), textOf(t, dot))
 	}
 }
 
@@ -94,7 +112,11 @@ func TestCritiqueCRLFAndBOM(t *testing.T) {
 func TestCritiqueMissingFileIsError(t *testing.T) {
 	session := connect(t, critiqueRoot)
 	res := callTool(t, session, "critique", map[string]any{"file": "nope.html", "system": "project"})
-	want := `file "nope.html" not found.`
+	abs, err := filepath.Abs(critiqueRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `file "nope.html" not found. Relative paths resolve against the server root ` + abs + `; pass an absolute path for a file outside it.`
 	if !res.IsError || textOf(t, res) != want {
 		t.Errorf("got IsError=%t %q, want error %q", res.IsError, textOf(t, res), want)
 	}
@@ -153,10 +175,111 @@ func TestCritiqueNoDesignSystemIsError(t *testing.T) {
 	}
 	session := connect(t, root)
 	res := callTool(t, session, "critique", map[string]any{"file": "page.html", "system": "."})
-	want := "design-system not found under .; run tenet init there."
+	want := "design-system not found under " + root + ". This server was started with --dir " + root + ", which has no design-system/ folder; start it with a --dir that does."
 	if !res.IsError || textOf(t, res) != want {
 		t.Errorf("got IsError=%t %q, want error %q", res.IsError, textOf(t, res), want)
 	}
+	if strings.Contains(textOf(t, res), "tenet init") {
+		t.Errorf("message mentions tenet init: %q", textOf(t, res))
+	}
+}
+
+func TestCritiqueAbsoluteSystemWithoutDesignSystem(t *testing.T) {
+	r := t.TempDir()
+	other := t.TempDir()
+	if err := os.WriteFile(filepath.Join(r, "page.html"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	session := connect(t, r)
+	res := callTool(t, session, "critique", map[string]any{"file": "page.html", "system": other})
+	want := "design-system not found under " + other + ". This server's root is " + r + "; omit system to check against the system it serves."
+	if !res.IsError || textOf(t, res) != want {
+		t.Errorf("got IsError=%t %q, want error %q", res.IsError, textOf(t, res), want)
+	}
+}
+
+func TestCritiqueFileNotFoundNamesRoot(t *testing.T) {
+	root := t.TempDir()
+	session := connect(t, root)
+	res := callTool(t, session, "critique", map[string]any{"file": "missing.html"})
+	want := `file "missing.html" not found. Relative paths resolve against the server root ` + root + `; pass an absolute path for a file outside it.`
+	if !res.IsError || textOf(t, res) != want {
+		t.Errorf("got IsError=%t %q, want error %q", res.IsError, textOf(t, res), want)
+	}
+}
+
+func TestCritiqueRelativeRootIsShownAbsolute(t *testing.T) {
+	abs, err := filepath.Abs("../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	session := connect(t, "../..")
+	res := callTool(t, session, "critique", map[string]any{"file": "missing.html"})
+	text := textOf(t, res)
+	if !res.IsError || !strings.Contains(text, "server root "+abs+";") || strings.Contains(text, "root ../..") {
+		t.Errorf("got IsError=%t %q, want absolute root %q", res.IsError, text, abs)
+	}
+}
+
+func TestCritiqueOmittedSystemDefaultsToRoot(t *testing.T) {
+	root := t.TempDir()
+	writeDesignSystem(t, root, map[string]string{
+		"design-system/point-of-view.md": "# Point of view\n\nText.\n",
+		"design-system/tokens.json":      "{}",
+		"design-system/rules.md":         "## r\nS.\nReason: R.\nForbid: bad\nFix: F.\n",
+		"ui/page.html":                   "a\nbad\n",
+	})
+	session := connect(t, root)
+	base := callTool(t, session, "critique", map[string]any{"file": "ui/page.html", "system": "."})
+	if base.IsError || !strings.Contains(textOf(t, base), "1 finding(s)") {
+		t.Fatalf("baseline: IsError=%t %q", base.IsError, textOf(t, base))
+	}
+	for name, args := range map[string]map[string]any{
+		"omitted": {"file": "ui/page.html"},
+		"empty":   {"file": "ui/page.html", "system": ""},
+	} {
+		t.Run(name, func(t *testing.T) {
+			res := callTool(t, session, "critique", args)
+			if res.IsError || textOf(t, res) != textOf(t, base) {
+				t.Errorf("got IsError=%t %q, want %q", res.IsError, textOf(t, res), textOf(t, base))
+			}
+		})
+	}
+}
+
+func TestCritiqueSystemIsNotRequired(t *testing.T) {
+	session := connect(t, critiqueRoot)
+	list, err := session.ListTools(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tool := range list.Tools {
+		if tool.Name != "critique" {
+			continue
+		}
+		raw, err := json.Marshal(tool.InputSchema)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var schema struct {
+			Required []string `json:"required"`
+		}
+		if err := json.Unmarshal(raw, &schema); err != nil {
+			t.Fatal(err)
+		}
+		var hasFile bool
+		for _, r := range schema.Required {
+			if r == "system" {
+				t.Errorf("system is required: %v", schema.Required)
+			}
+			hasFile = hasFile || r == "file"
+		}
+		if !hasFile {
+			t.Errorf("file is not required: %v", schema.Required)
+		}
+		return
+	}
+	t.Fatal("critique tool not listed")
 }
 
 func TestCritiqueNonRegularFileIsError(t *testing.T) {
@@ -180,7 +303,6 @@ func TestCritiqueEmptyArgumentsAreErrors(t *testing.T) {
 		want string
 	}{
 		{"empty file", map[string]any{"file": "", "system": "project"}, "file is empty; pass the path to a UI source file."},
-		{"empty system", map[string]any{"file": "critique/page.html", "system": ""}, "system is empty; pass a folder, or . for the project root."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -21,8 +21,25 @@ const (
 
 // CritiqueInput is the input of critique.
 type CritiqueInput struct {
-	File   string `json:"file" jsonschema:"path to the UI source file, relative to the project root or absolute"`
-	System string `json:"system" jsonschema:"folder holding the design-system/ to check against, relative to the project root; . for the project root"`
+	File   string `json:"file" jsonschema:"path to the UI source file; relative paths resolve against the server root, so pass an absolute path for a file in your own working folder"`
+	System string `json:"system,omitempty" jsonschema:"optional; . or empty means the design system this server was started with. Do not pass your project folder."`
+}
+
+// absRoot returns root as an absolute path, or root as given when that fails.
+func absRoot(root string) string {
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		return root
+	}
+	return abs
+}
+
+// resolveUnder returns p as given when it is absolute, otherwise p joined to root.
+func resolveUnder(root, p string) string {
+	if filepath.IsAbs(p) {
+		return p
+	}
+	return filepath.Join(root, p)
 }
 
 // critiqueTool checks one source file against the checkable rules of one design system.
@@ -30,17 +47,15 @@ func critiqueTool(root string, in CritiqueInput) *mcp.CallToolResult {
 	if in.File == "" {
 		return toolError("file is empty; pass the path to a UI source file.")
 	}
+	in.System = strings.TrimSpace(in.System)
 	if in.System == "" {
-		return toolError("system is empty; pass a folder, or . for the project root.")
+		in.System = "."
 	}
-	path := in.File
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(root, path)
-	}
+	path := resolveUnder(root, in.File)
 	info, err := os.Stat(path)
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
-		return toolError(fmt.Sprintf("file %q not found.", in.File))
+		return toolError(fmt.Sprintf("file %q not found. Relative paths resolve against the server root %s; pass an absolute path for a file outside it.", in.File, absRoot(root)))
 	case err != nil:
 		return toolError(fmt.Sprintf("could not read file %q: %v", in.File, err))
 	case info.IsDir():
@@ -58,14 +73,15 @@ func critiqueTool(root string, in CritiqueInput) *mcp.CallToolResult {
 		return toolError(fmt.Sprintf("file %q is not a text file.", in.File))
 	}
 
-	systemRoot := in.System
-	if !filepath.IsAbs(systemRoot) {
-		systemRoot = filepath.Join(root, systemRoot)
-	}
-	pack, problems := designsystem.Load(systemRoot)
+	pack, problems := designsystem.Load(resolveUnder(root, in.System))
 	if p, ok := problemFor(problems, designsystem.DirName); ok {
 		if strings.HasPrefix(p.Message, "directory not found") {
-			return toolError(fmt.Sprintf("design-system not found under %s; run tenet init there.", in.System))
+			abs := absRoot(root)
+			shown := filepath.Clean(resolveUnder(abs, in.System))
+			if shown == filepath.Clean(abs) {
+				return toolError(fmt.Sprintf("design-system not found under %s. This server was started with --dir %s, which has no design-system/ folder; start it with a --dir that does.", shown, abs))
+			}
+			return toolError(fmt.Sprintf("design-system not found under %s. This server's root is %s; omit system to check against the system it serves.", shown, abs))
 		}
 		msg := p.String()
 		if !strings.Contains(msg, "run tenet init") {
