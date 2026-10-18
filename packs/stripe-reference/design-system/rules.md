@@ -30,7 +30,7 @@ Fix: Replace the easing keyword with the motion.standard token from design-syste
 
 ## button.one-primary
 A view has at most one primary button; other actions use the secondary style.
-Reason: Two primary actions compete, so the user cannot tell which one the screen expects (research section 7, checkout and onboarding patterns).
+Reason: Two primary actions compete, so the user cannot tell which one the screen expects (research section 7, Stripe Apps progress stepping, where the final action is the one primary button).
 Applies to: component:button, template:payments-list
 
 ## empty-state.title-states-missing
