@@ -20,6 +20,10 @@
 - [x] Slice 6: Consistency experiment
   - Five fixed briefs are run twice each: once with a plain prompt, once with the MCP tools enabled and the reference pack loaded
   - A committed report lists how many generated outputs used only pack tokens and how many critique findings each produced, and states whether tool delivery improved consistency (this settles the risk in ADR-0003)
+- [ ] Slice 7: Make `critique` hard to misuse
+  - `critique` works with `file` alone: an empty or missing `system` means `.`, the design system the server was started with
+  - A "design-system not found" or "file not found" error names the absolute path searched and the server root, and says how to fix the call; the design-system error no longer tells the model to run `tenet init`
+  - Found in use: a client working in another folder passed its project folder as `system`, then gave up on `critique`
 
 ## Later
 - Hosted or shared mode with accounts and auth (needs its own ADR; see ADR-0005)
