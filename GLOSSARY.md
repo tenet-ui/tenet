@@ -48,6 +48,14 @@ _Avoid_: review, lint, validation
 One breach of one rule in one file, with the line, the rule's id, the matched text and the rule's fix. Critique returns findings; it does not pass or fail a file.
 _Avoid_: error, violation, issue, warning
 
+**Checkable rule**:
+A valid rule with a `Forbid:` pattern. `critique` checks only checkable rules.
+_Avoid_: automated rule, lint rule
+
+**Judgement rule**:
+A rule no pattern can check, such as whether a layout fits the user journey. The client reads it through the delivery tools and reasons over it (ADR-0009).
+_Avoid_: soft rule, guideline
+
 **Done vs good**:
 The distinction that a generated interface can look finished while still failing the problem, the differentiation or the journey. Critique exists to close that gap.
 _Avoid_: polish, finished

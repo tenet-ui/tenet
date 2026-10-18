@@ -476,7 +476,7 @@ It is a worked example: a complete design system (point of view, tokens, rules, 
 
 Every observation traces to [docs/research/stripe-design-system.md](../../docs/research/stripe-design-system.md). That file lists its public sources, the date accessed (2026-10-18), and a confidence level for each observation.
 
-Token values are this pack's own choices, inspired by the hue families the research observed. No observed value is copied.
+Token values are this pack's own choices, inspired by the hue families the research observed. No observed hex value is copied. The easing curve and the radius scale reuse the research's observed values, because they describe structure rather than brand colour.
 
 | Token category | Based on research section |
 |---|---|
