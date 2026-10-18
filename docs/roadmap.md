@@ -25,7 +25,20 @@
   - A "design-system not found" or "file not found" error names the absolute path searched and the server root, and says how to fix the call; the design-system error no longer tells the model to run `tenet init`
   - Found in use: a client working in another folder passed its project folder as `system`, then gave up on `critique`
 
+- [ ] Slice 8: Motion reference pack
+  - A `packs/motion-reference/` folder passes `tenet validate` and holds an invented, labelled motion personality (a point of view), motion tokens (easing, duration, stagger, spring, frame rate), 8 to 10 rules of which at least 4 are checkable, 3 motion components, one scene template and one storyboard flow
+  - The pack README states it is an invented example with no outside source, and that its rule patterns target Remotion and CSS source
+  - A fixture Remotion composition that uses only pack tokens reports no findings from `critique`
+- [ ] Slice 9: Motion critique checks
+  - `critique` run on a fixture Remotion file and a fixture CSS file seeded with built-in easing, a hardcoded duration, a missing stagger and a raw `cubic-bezier` reports each seeded breach by rule and line, and nothing else
+  - No change to the loader or tool schema is needed beyond new rules; any change that proves necessary is recorded in an ADR
+- [ ] Slice 10: Motion consistency experiment
+  - Five fixed motion briefs are run twice each, once with a plain prompt and once with the motion pack loaded through the MCP tools
+  - A committed report counts outputs that use only pack motion tokens and the `critique` findings per output, and states whether delivery improved timing consistency (the slice 6 method)
+
 ## Later
+- Frame-sampling tool: render a motion piece to frames so the client can review it visually (see ADR-0011)
+- GSAP and Framer Motion rules for the motion pack
 - Hosted or shared mode with accounts and auth (needs its own ADR; see ADR-0005)
 - Remote HTTP transport (see ADR-0007)
 - Importing tokens from Figma or design-token JSON exports

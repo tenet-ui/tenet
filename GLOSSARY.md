@@ -83,3 +83,28 @@ _Avoid_: attached rule, related rule, tagged rule
 **Intent**:
 What the product and brand are trying to achieve for a user. Output quality is measured against intent, not against whether the output was AI-made.
 _Avoid_: prompt, goal, request
+
+
+**Motion**:
+Anything in a made thing that changes over time: a UI transition, an animated explainer, a launch video. Motion is held to the same system as a static screen: it comes from tokens, follows rules and carries the point of view.
+_Avoid_: animation effects, transitions (these name parts of it)
+
+**Motion pack**:
+A pack whose tokens, rules, components, templates and flows are about motion, such as easing, duration, stagger, scenes and storyboards. It uses the same files as any other pack; it is a pack with a motion focus, not a new kind of file.
+_Avoid_: animation preset, motion theme
+
+**Motion personality**:
+How a brand moves: fast or slow, restrained or playful, whether it overshoots or settles. The motion part of the point of view, from which the motion tokens and rules are derived.
+_Avoid_: animation style, feel
+
+**Scene**:
+A motion template: one self-contained stretch of a motion piece, such as a title card or a feature showcase, composed from motion components with set timings.
+_Avoid_: slide, clip, shot
+
+**Storyboard**:
+A motion flow: the ordered scenes of a motion piece with the timing and transition between them and where the pacing speeds up or slows down.
+_Avoid_: timeline, sequence, script
+
+**Generic motion**:
+The motion counterpart of zombie UI: built-in easing, one default duration, a fade-up on everything, a bounce on every element, with no personality behind it.
+_Avoid_: default animation, slop
